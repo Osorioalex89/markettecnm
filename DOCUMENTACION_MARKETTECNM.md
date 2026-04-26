@@ -152,7 +152,7 @@ Todas las tablas tienen políticas RLS activas. Cada rol solo puede ver y modifi
 8. **Checkout** — Selección de punto de entrega del campus, confirmación y vaciado automático del carrito
 9. **Historial de pedidos** — Para el comprador (mis órdenes) y el vendedor (ventas recibidas)
 10. **Chat en tiempo real** — Mensajería instantánea con Supabase Realtime; burbujas diferenciadas
-11. **Push notifications** — Aviso en dispositivo físico al recibir un mensaje nuevo
+11. **Push notifications** — Aviso en dispositivo físico al recibir un mensaje nuevo. El error `expo-notifications: Android Push notifications (remote)...` visible en Expo Go es **esperado y no afecta ninguna funcionalidad** — desaparece al generar el APK con `eas build`
 12. **Badges de no leídos** — Contador en el tab Mensajes que se actualiza en tiempo real
 13. **Panel de administrador** — Dashboard con stats, gestión de usuarios y moderación de contenido
 

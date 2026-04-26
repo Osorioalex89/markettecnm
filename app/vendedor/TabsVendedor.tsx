@@ -72,21 +72,6 @@ function PlaceholderScreen({ tab }: { tab: TabConfig }) {
         <Text style={{ color: '#666', fontSize: 13, marginTop: 6, textAlign: 'center' }}>
           {tab.subtitulo}
         </Text>
-        <View
-          style={{
-            marginTop: 12,
-            backgroundColor: 'rgba(255,107,43,0.12)',
-            borderRadius: 20,
-            borderWidth: 1,
-            borderColor: 'rgba(255,107,43,0.25)',
-            paddingHorizontal: 12,
-            paddingVertical: 4,
-          }}
-        >
-          <Text style={{ color: '#FF6B2B', fontSize: 11, fontWeight: '600' }}>
-            Disponible en {tab.paso}
-          </Text>
-        </View>
       </LinearGradient>
 
       {/* Tarjeta de perfil */}
@@ -226,10 +211,19 @@ export default function TabsVendedor() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
+        tabBarBackground: () => (
+          <View style={{ flex: 1, backgroundColor: '#141414' }}>
+            <LinearGradient
+              colors={['#FFB830', '#FF6B2B', 'transparent']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ height: 1.5, position: 'absolute', top: 0, left: 0, right: 0 }}
+            />
+          </View>
+        ),
         tabBarStyle: {
-          backgroundColor: '#0F0F0F',
-          borderTopColor: '#1A1A1A',
-          borderTopWidth: 1,
+          backgroundColor: 'transparent',
+          borderTopWidth: 0,
           paddingBottom: insets.bottom + 6,
           paddingTop: 6,
           height: 64 + insets.bottom,

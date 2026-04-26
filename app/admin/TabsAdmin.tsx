@@ -174,10 +174,19 @@ export default function TabsAdmin() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
+        tabBarBackground: () => (
+          <View style={{ flex: 1, backgroundColor: '#141414' }}>
+            <LinearGradient
+              colors={['#FFB830', '#FF6B2B', 'transparent']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ height: 1.5, position: 'absolute', top: 0, left: 0, right: 0 }}
+            />
+          </View>
+        ),
         tabBarStyle: {
-          backgroundColor: '#0F0F0F',
-          borderTopColor: '#1A1A1A',
-          borderTopWidth: 1,
+          backgroundColor: 'transparent',
+          borderTopWidth: 0,
           paddingBottom: insets.bottom + 6,
           paddingTop: 6,
           height: 64 + insets.bottom,
