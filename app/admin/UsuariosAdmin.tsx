@@ -66,8 +66,8 @@ export default function UsuariosAdmin() {
   };
 
   const renderItem = ({ item }: { item: Perfil }) => {
-    const rol = item.rol as keyof typeof ROL_CONFIG;
-    const config = ROL_CONFIG[rol] ?? ROL_CONFIG.comprador;
+    const rol = item.rol in ROL_CONFIG ? (item.rol as keyof typeof ROL_CONFIG) : 'comprador';
+    const config = ROL_CONFIG[rol];
     const esCambiando = cambiando === item.id;
 
     return (

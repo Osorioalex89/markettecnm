@@ -35,6 +35,8 @@ export async function registrarAlumno(
   if (perfilError) throw perfilError;
 }
 
+const ROLES_VALIDOS: Rol[] = ['comprador', 'vendedor', 'admin'];
+
 export async function obtenerPerfil(userId: string): Promise<Usuario> {
   const { data, error } = await supabase
     .from('perfiles')
@@ -42,7 +44,8 @@ export async function obtenerPerfil(userId: string): Promise<Usuario> {
     .eq('id', userId)
     .single();
   if (error) throw error;
-  return data;
+  if (!ROLES_VALIDOS.includes(data.rol as Rol)) throw new Error(`Rol inválido: ${data.rol}`);
+  return data as Usuario;
 }
 
 export async function cerrarSesionSupabase(): Promise<void> {

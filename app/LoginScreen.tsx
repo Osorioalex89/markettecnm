@@ -13,8 +13,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../store/authStore';
 
+import type { Rol } from '../types';
+
 type Modo = 'login' | 'registro';
-type RolAlumno = 'comprador' | 'vendedor';
+type RolAlumno = Exclude<Rol, 'admin'>;
 
 const ERRORES_ES: Record<string, string> = {
   'Invalid login credentials': 'Matrícula o contraseña incorrectos',

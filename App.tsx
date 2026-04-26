@@ -132,8 +132,10 @@ export default function App() {
           <Stack.Screen name="TabsComprador" component={TabsComprador} />
         ) : usuario.rol === 'vendedor' ? (
           <Stack.Screen name="TabsVendedor" component={TabsVendedor} />
-        ) : (
+        ) : usuario.rol === 'admin' ? (
           <Stack.Screen name="HomeAdmin" component={TabsAdmin} />
+        ) : (
+          <Stack.Screen name="Login" component={LoginScreen} />
         )}
         <Stack.Screen
           name="ChatScreen"

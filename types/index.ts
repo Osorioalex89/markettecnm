@@ -2,7 +2,7 @@ import { Tables } from './database';
 
 export type Rol = 'comprador' | 'vendedor' | 'admin';
 
-export type Usuario = Tables<'perfiles'>;
+export type Usuario = Omit<Tables<'perfiles'>, 'rol'> & { rol: Rol };
 
 export type Perfil = Tables<'perfiles'>;
 export type Producto = Tables<'productos'>;
