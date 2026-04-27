@@ -72,3 +72,11 @@ export async function toggleProductoActivo(
     .eq('id', productoId);
   if (error) throw error;
 }
+
+export async function eliminarProducto(productoId: string): Promise<void> {
+  const { error } = await supabase
+    .from('productos')
+    .delete()
+    .eq('id', productoId);
+  if (error) throw error;
+}

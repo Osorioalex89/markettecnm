@@ -177,6 +177,20 @@ export function suscribirseANoLeidosGlobal(
     .subscribe();
 }
 
+export async function eliminarConversacion(conversacionId: string): Promise<void> {
+  const { error: errMsgs } = await supabase
+    .from('mensajes')
+    .delete()
+    .eq('conversacion_id', conversacionId);
+  if (errMsgs) throw errMsgs;
+
+  const { error: errConv } = await supabase
+    .from('conversaciones')
+    .delete()
+    .eq('id', conversacionId);
+  if (errConv) throw errConv;
+}
+
 export function suscribirseAMensajes(
   conversacionId: string,
   onNuevoMensaje: (msg: Mensaje) => void,

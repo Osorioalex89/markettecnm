@@ -63,12 +63,12 @@ MarkeTTecnm/
 │       ├── TabsAdmin.tsx          → Bottom tabs: Panel, Usuarios, Productos, Perfil
 │       ├── HomeAdmin.tsx          → Dashboard con estadísticas en tiempo real
 │       ├── UsuariosAdmin.tsx      → Gestión de usuarios: cambio de rol
-│       └── ProductosAdmin.tsx     → Moderación: activar u ocultar productos
+│       └── ProductosAdmin.tsx     → Moderación: activar u ocultar productos + eliminación permanente
 │
 ├── /components
 │   ├── ProductCard.tsx            → Card reutilizable: imagen, precio, categoría, botones
 │   ├── ProductoDetalle.tsx        → Modal tipo MercadoLibre con detalle completo del producto
-│   └── ListaChats.tsx             → Lista de conversaciones con badges de mensajes no leídos
+│   └── ListaChats.tsx             → Lista de conversaciones con badges de mensajes no leídos; long press para eliminar
 │
 ├── /store
 │   ├── authStore.ts               → Estado de sesión (usuario, rol, perfil)
@@ -79,8 +79,8 @@ MarkeTTecnm/
 │   ├── authService.ts             → Login, registro, logout, obtenerPerfil
 │   ├── productosService.ts        → CRUD de productos + subida de imágenes a Storage
 │   ├── ordenesService.ts          → Crear órdenes, historial comprador, ventas vendedor
-│   ├── chatService.ts             → Conversaciones, mensajes, Realtime, badges no leídos
-│   └── adminService.ts            → Stats globales, gestión usuarios, moderación productos
+│   ├── chatService.ts             → Conversaciones, mensajes, Realtime, badges no leídos, eliminar conversación
+│   └── adminService.ts            → Stats globales, gestión usuarios, moderación productos, eliminar producto
 │
 └── /types
     ├── index.ts                   → Tipos: Rol, Usuario, Perfil, Producto, Mensaje, etc.
@@ -110,6 +110,7 @@ MarkeTTecnm/
 - Ve estadísticas globales en tiempo real: total de alumnos, productos activos, órdenes del día
 - Cambia el rol de cualquier alumno (comprador ↔ vendedor)
 - Activa u oculta productos del marketplace sin eliminarlos
+- Elimina permanentemente cualquier producto del marketplace
 
 ---
 
@@ -132,6 +133,8 @@ Todas las tablas tienen políticas RLS activas. Cada rol solo puede ver y modifi
 - Los compradores solo ven sus órdenes y mensajes
 - Los vendedores solo editan sus propios productos
 - El administrador tiene acceso completo vía función `es_admin()`
+- Los participantes de un chat pueden eliminar su propia conversación (y sus mensajes) con políticas DELETE en `conversaciones` y `mensajes`
+- Solo el administrador puede hacer DELETE permanente en `productos` (diferente del toggle oculto/activo del vendedor)
 
 ### Storage
 - Bucket **`productos`** (público) para imágenes de productos
@@ -155,6 +158,8 @@ Todas las tablas tienen políticas RLS activas. Cada rol solo puede ver y modifi
 11. **Push notifications** — Aviso en dispositivo físico al recibir un mensaje nuevo. El error `expo-notifications: Android Push notifications (remote)...` visible en Expo Go es **esperado y no afecta ninguna funcionalidad** — desaparece al generar el APK con `eas build`
 12. **Badges de no leídos** — Contador en el tab Mensajes que se actualiza en tiempo real
 13. **Panel de administrador** — Dashboard con stats, gestión de usuarios y moderación de contenido
+14. **Eliminar conversaciones** — Long press en cualquier chat de `ListaChats` muestra confirmación y borra la conversación completa (mensajes + conversación) de Supabase
+15. **Eliminar publicaciones (admin)** — Botón "Eliminar" en `ProductosAdmin` permite borrado permanente de productos; diferente del toggle oculto que es reversible
 
 ---
 

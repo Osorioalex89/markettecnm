@@ -6,12 +6,11 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
-  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fetchTodosProductos, toggleProductoActivo } from '../../services/adminService';
+import { fetchTodosProductos, toggleProductoActivo, eliminarProducto } from '../../services/adminService';
 import type { ProductoAdmin } from '../../services/adminService';
 
 function formatPrecio(precio: number): string {
@@ -23,6 +22,7 @@ export default function ProductosAdmin() {
   const [productos, setProductos] = useState<ProductoAdmin[]>([]);
   const [cargando, setCargando] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
+  const [eliminando, setEliminando] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
     try {
@@ -36,6 +36,31 @@ export default function ProductosAdmin() {
   }, []);
 
   useEffect(() => { cargar(); }, [cargar]);
+
+  const onEliminar = (producto: ProductoAdmin) => {
+    Alert.alert(
+      'Eliminar publicación',
+      `¿Eliminar permanentemente "${producto.nombre}"? Esta acción no se puede deshacer.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            setEliminando(producto.id);
+            try {
+              await eliminarProducto(producto.id);
+              setProductos((prev) => prev.filter((p) => p.id !== producto.id));
+            } catch {
+              Alert.alert('Error', 'No se pudo eliminar el producto.');
+            } finally {
+              setEliminando(null);
+            }
+          },
+        },
+      ],
+    );
+  };
 
   const onToggle = (producto: ProductoAdmin) => {
     const accion = producto.activo ? 'ocultar' : 'activar';
@@ -68,6 +93,7 @@ export default function ProductosAdmin() {
 
   const renderItem = ({ item }: { item: ProductoAdmin }) => {
     const esToggling = toggling === item.id;
+    const esEliminando = eliminando === item.id;
     const activo = item.activo !== false;
 
     return (
@@ -173,6 +199,32 @@ export default function ProductosAdmin() {
                 }}
               >
                 {activo ? 'Ocultar' : 'Activar'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => onEliminar(item)}
+              disabled={esEliminando || esToggling}
+              activeOpacity={0.7}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 4,
+                backgroundColor: 'rgba(255,77,77,0.08)',
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: 'rgba(255,77,77,0.2)',
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+              }}
+            >
+              {esEliminando ? (
+                <ActivityIndicator size={10} color="#FF4D4D" />
+              ) : (
+                <Ionicons name="trash-outline" size={12} color="#FF4D4D" />
+              )}
+              <Text style={{ color: '#FF4D4D', fontSize: 10, fontWeight: '600' }}>
+                Eliminar
               </Text>
             </TouchableOpacity>
           </View>

@@ -6,13 +6,18 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuthStore } from '../store/authStore';
-import { fetchConversaciones, type ConversacionConDetalle } from '../services/chatService';
+import {
+  fetchConversaciones,
+  eliminarConversacion,
+  type ConversacionConDetalle,
+} from '../services/chatService';
 
 function tiempoRelativo(iso: string | null): string {
   if (!iso) return '';
@@ -52,6 +57,28 @@ export default function ListaChats() {
   const onRefresh = () => {
     setRefrescando(true);
     cargar();
+  };
+
+  const onLongPressChat = (item: ConversacionConDetalle) => {
+    Alert.alert(
+      'Eliminar conversación',
+      `¿Eliminar el chat con ${item.otro.nombre}? Se borrarán todos los mensajes.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await eliminarConversacion(item.id);
+              setConversaciones((prev) => prev.filter((c) => c.id !== item.id));
+            } catch {
+              Alert.alert('Error', 'No se pudo eliminar la conversación.');
+            }
+          },
+        },
+      ],
+    );
   };
 
   if (cargando) {
@@ -128,6 +155,8 @@ export default function ListaChats() {
                   destinatarioId: item.otro.id,
                 })
               }
+              onLongPress={() => onLongPressChat(item)}
+              delayLongPress={400}
               activeOpacity={0.75}
               style={{
                 flexDirection: 'row',
