@@ -345,6 +345,15 @@ export default function CarritoComprador() {
         </View>
       </LinearGradient>
 
+      {/* Fade header→contenido */}
+      <LinearGradient
+        colors={['rgba(28,10,0,0.7)', 'transparent']}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+        style={{ height: 48 }}
+        pointerEvents="none"
+      />
+
       {vistaActiva === 'carrito' ? <VistaCarrito /> : <HistorialComprador />}
     </View>
   );

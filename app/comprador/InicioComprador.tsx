@@ -113,6 +113,15 @@ export default function InicioComprador() {
         </View>
       </LinearGradient>
 
+      {/* Fade header→contenido */}
+      <LinearGradient
+        colors={['rgba(28,10,0,0.7)', 'transparent']}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+        style={{ height: 48 }}
+        pointerEvents="none"
+      />
+
       <View style={{ paddingHorizontal: 20, paddingBottom: 32 }}>
         {/* Sección header */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
