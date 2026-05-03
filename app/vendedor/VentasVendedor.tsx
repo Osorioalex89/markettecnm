@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View, Text, FlatList, ActivityIndicator, RefreshControl,
 } from 'react-native';
@@ -24,6 +24,158 @@ function formatFecha(iso: string | null) {
 function formatPrecio(v: number) {
   return `$${v.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 }
+
+// ── Stats helpers ─────────────────────────────────────────────────────────────
+
+const DIAS_ES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+function computeStats(ventas: VentaVendedor[]) {
+  const hoy = new Date();
+  const semana = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(hoy);
+    d.setDate(hoy.getDate() - (6 - i));
+    return { label: DIAS_ES[d.getDay()], date: d.toISOString().slice(0, 10), value: 0 };
+  });
+
+  const mesActual = hoy.toISOString().slice(0, 7);
+  let esteMes = 0;
+  const porEstado: Record<string, number> = { pendiente: 0, confirmado: 0, entregado: 0, cancelado: 0 };
+
+  for (const v of ventas) {
+    const fecha = v.creado_en?.slice(0, 10) ?? '';
+    const dia = semana.find((d) => d.date === fecha);
+    if (dia) dia.value += v.subtotal;
+    if (v.creado_en?.startsWith(mesActual) && v.estado !== 'cancelado') esteMes += v.subtotal;
+    const estado = v.estado ?? 'pendiente';
+    if (estado in porEstado) porEstado[estado]++;
+  }
+
+  return { semana, esteMes, porEstado };
+}
+
+// ── Bar chart ─────────────────────────────────────────────────────────────────
+
+type BarData = { label: string; value: number };
+
+function BarChart({ data, t }: { data: BarData[]; t: ReturnType<typeof useTheme> }) {
+  const max = Math.max(...data.map((d) => d.value), 1);
+  const CHART_H = 72;
+  const hoy = new Date().toISOString().slice(0, 10);
+  const todayIdx = data.findIndex((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return d.toISOString().slice(0, 10) === hoy;
+  });
+
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 5, height: CHART_H + 22 }}>
+      {data.map((item, i) => {
+        const barH = item.value > 0 ? Math.max((item.value / max) * CHART_H, 6) : 3;
+        const isToday = i === todayIdx;
+        return (
+          <View key={i} style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-end', height: CHART_H + 22 }}>
+            <LinearGradient
+              colors={item.value > 0 ? ['#34D399', '#059669'] : [t.surface2, t.surface2]}
+              style={{
+                width: '100%', height: barH, borderRadius: 5,
+                opacity: isToday ? 1 : 0.7,
+              }}
+            />
+            <Text style={{
+              color: isToday ? '#10B981' : t.textMuted,
+              fontSize: 9, marginTop: 5, fontWeight: isToday ? '700' : '400',
+            }}>
+              {item.label}
+            </Text>
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
+// ── Stats section ─────────────────────────────────────────────────────────────
+
+function StatsSection({ ventas, t, isDark }: { ventas: VentaVendedor[]; t: ReturnType<typeof useTheme>; isDark: boolean }) {
+  const stats = useMemo(() => computeStats(ventas), [ventas]);
+  const semanaTotal = stats.semana.reduce((acc, d) => acc + d.value, 0);
+
+  const chips = [
+    { label: 'Pendientes', value: stats.porEstado.pendiente, color: '#059669' },
+    { label: 'Confirmados', value: stats.porEstado.confirmado, color: '#4ADE80' },
+    { label: 'Entregados', value: stats.porEstado.entregado, color: '#34D399' },
+    { label: 'Cancelados', value: stats.porEstado.cancelado, color: '#F87171' },
+  ];
+
+  return (
+    <View style={{ marginBottom: 20 }}>
+      {/* Section title */}
+      <Text style={{
+        color: t.textMuted, fontSize: 11, fontWeight: '600',
+        letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12,
+      }}>
+        Estadísticas
+      </Text>
+
+      {/* Últimos 7 días */}
+      <View style={{
+        backgroundColor: t.surface, borderRadius: 18, borderWidth: 1,
+        borderColor: t.border, padding: 16, marginBottom: 10,
+      }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <Text style={{ color: t.text, fontSize: 13, fontWeight: '700' }}>Últimos 7 días</Text>
+          <Text style={{ color: '#059669', fontSize: 14, fontWeight: '800' }}>
+            ${semanaTotal.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+          </Text>
+        </View>
+        <BarChart data={stats.semana} t={t} />
+      </View>
+
+      {/* Este mes */}
+      <View style={{
+        backgroundColor: isDark ? 'rgba(74,222,128,0.06)' : 'rgba(5,150,105,0.05)',
+        borderRadius: 16, borderWidth: 1,
+        borderColor: isDark ? 'rgba(74,222,128,0.15)' : 'rgba(5,150,105,0.15)',
+        padding: 14, marginBottom: 10,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <View style={{
+            width: 36, height: 36, borderRadius: 10,
+            backgroundColor: 'rgba(74,222,128,0.12)',
+            alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Ionicons name="calendar-outline" size={18} color="#4ADE80" />
+          </View>
+          <View>
+            <Text style={{ color: t.textMuted, fontSize: 11, fontWeight: '600' }}>INGRESOS ESTE MES</Text>
+            <Text style={{ color: '#4ADE80', fontSize: 20, fontWeight: '800', marginTop: 2 }}>
+              ${stats.esteMes.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+            </Text>
+          </View>
+        </View>
+        <Ionicons name="trending-up-outline" size={24} color="rgba(74,222,128,0.4)" />
+      </View>
+
+      {/* Estado chips */}
+      <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+        {chips.map((c) => (
+          <View key={c.label} style={{
+            flexDirection: 'row', alignItems: 'center', gap: 6,
+            backgroundColor: t.surface, borderRadius: 20, borderWidth: 1,
+            borderColor: t.border, paddingHorizontal: 12, paddingVertical: 7,
+          }}>
+            <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.color }} />
+            <Text style={{ color: t.textMuted, fontSize: 11 }}>{c.label} </Text>
+            <Text style={{ color: c.color, fontSize: 12, fontWeight: '800' }}>{c.value}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+// ── Venta card ────────────────────────────────────────────────────────────────
 
 function VentaCard({ venta }: { venta: VentaVendedor }) {
   const t = useTheme();
@@ -228,6 +380,19 @@ export default function VentasVendedor() {
               onRefresh={() => { setRefreshing(true); cargar(); }}
               tintColor="#059669"
             />
+          }
+          ListHeaderComponent={
+            ventas.length > 0 ? (
+              <>
+                <StatsSection ventas={ventas} t={t} isDark={isDark} />
+                <Text style={{
+                  color: t.textMuted, fontSize: 11, fontWeight: '600',
+                  letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12,
+                }}>
+                  Pedidos recientes
+                </Text>
+              </>
+            ) : null
           }
           ListEmptyComponent={
             <View style={{ alignItems: 'center', marginTop: 60, paddingHorizontal: 40 }}>
