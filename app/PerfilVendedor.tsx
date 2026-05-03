@@ -11,8 +11,10 @@ import { useTheme } from '../hooks/useTheme';
 import { useThemeStore } from '../store/themeStore';
 import { fetchMisProductos, type ProductoConVendedor } from '../services/productosService';
 import { obtenerOCrearConversacion } from '../services/chatService';
+import { fetchRatingVendedor, type RatingResumen } from '../services/calificacionesService';
 import ProductCard from '../components/ProductCard';
 import ProductoDetalle from '../components/ProductoDetalle';
+import StarRating from '../components/StarRating';
 
 type RouteParams = {
   PerfilVendedor: { vendedorId: string; nombreVendedor: string };
@@ -32,10 +34,17 @@ export default function PerfilVendedor() {
   const [cargando, setCargando] = useState(true);
   const [contactandoId, setContactandoId] = useState<string | null>(null);
   const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoConVendedor | null>(null);
+  const [ratingVendedor, setRatingVendedor] = useState<RatingResumen | null>(null);
 
   useEffect(() => {
-    fetchMisProductos(vendedorId)
-      .then(setProductos)
+    Promise.all([
+      fetchMisProductos(vendedorId),
+      fetchRatingVendedor(vendedorId),
+    ])
+      .then(([prods, rating]) => {
+        setProductos(prods);
+        setRatingVendedor(rating);
+      })
       .catch(() => setProductos([]))
       .finally(() => setCargando(false));
   }, [vendedorId]);
@@ -108,6 +117,14 @@ export default function PerfilVendedor() {
             }} numberOfLines={1}>
               {nombreVendedor}
             </Text>
+            {ratingVendedor && ratingVendedor.total > 0 && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                <StarRating value={ratingVendedor.promedio} size={13} />
+                <Text style={{ color: t.textMuted, fontSize: 11 }}>
+                  {ratingVendedor.promedio.toFixed(1)} · {ratingVendedor.total} reseña{ratingVendedor.total !== 1 ? 's' : ''}
+                </Text>
+              </View>
+            )}
           </View>
 
           <LinearGradient

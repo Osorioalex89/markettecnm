@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import type { ProductoConVendedor } from '../services/productosService';
 import { useTheme } from '../hooks/useTheme';
+import StarRating from './StarRating';
 
 const CATEGORIA_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
   'Electrónica': 'hardware-chip-outline',
@@ -39,11 +40,12 @@ type Props = {
   onFavorito?: () => void;
   esFavorito?: boolean;
   onVerVendedor?: () => void;
+  rating?: { promedio: number; total: number };
 };
 
 export default function ProductCard({
   producto, onPress, onAgregarCarrito, onContactar,
-  contactando, style, onFavorito, esFavorito, onVerVendedor,
+  contactando, style, onFavorito, esFavorito, onVerVendedor, rating,
 }: Props) {
   const t = useTheme();
   const icon   = CATEGORIA_ICON[producto.categoria ?? ''] ?? 'pricetag-outline';
@@ -233,6 +235,16 @@ export default function ProductCard({
           </Text>
           {onVerVendedor && <Ionicons name="chevron-forward" size={9} color="#10B981" />}
         </TouchableOpacity>
+
+        {/* Rating */}
+        {rating && rating.total > 0 && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
+            <StarRating value={rating.promedio} size={10} />
+            <Text style={{ color: t.textMuted, fontSize: 9 }}>
+              {rating.promedio.toFixed(1)} ({rating.total})
+            </Text>
+          </View>
+        )}
 
         {/* Precio + botón chat */}
         <View style={{

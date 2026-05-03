@@ -8,9 +8,10 @@ export type OrdenConItems = {
   total: number;
   items_orden: Array<{
     id: string;
+    producto_id: string;
     cantidad: number;
     precio_unit: number;
-    productos: { nombre: string; categoria: string | null } | null;
+    productos: { nombre: string; categoria: string | null; vendedor_id: string } | null;
   }>;
 };
 
@@ -65,7 +66,7 @@ export async function crearOrden(params: {
 export async function fetchOrdenesComprador(compradorId: string): Promise<OrdenConItems[]> {
   const { data, error } = await supabase
     .from('ordenes')
-    .select('*, items_orden(*, productos(nombre, categoria))')
+    .select('*, items_orden(*, productos(nombre, categoria, vendedor_id))')
     .eq('comprador_id', compradorId)
     .order('creado_en', { ascending: false });
 
