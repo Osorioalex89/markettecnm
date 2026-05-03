@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import {
   View, Text, TouchableOpacity, FlatList, Modal,
   Alert, ActivityIndicator,
@@ -7,6 +7,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useCarritoStore, type CartItem } from '../../store/carritoStore';
 import { useAuthStore } from '../../store/authStore';
+import { useTheme } from '../../hooks/useTheme';
+import { useThemeStore } from '../../store/themeStore';
 import { crearOrden } from '../../services/ordenesService';
 import HistorialComprador from './HistorialComprador';
 
@@ -28,12 +30,13 @@ function ItemRow({ item, onIncrementar, onDecrementar, onEliminar }: {
   onDecrementar: () => void;
   onEliminar: () => void;
 }) {
+  const t = useTheme();
   return (
     <View style={{
-      backgroundColor: '#141414',
+      backgroundColor: t.surface,
       borderRadius: 18,
       borderWidth: 1,
-      borderColor: '#2E2E2E',
+      borderColor: t.border,
       padding: 14,
       marginBottom: 10,
       flexDirection: 'row',
@@ -42,16 +45,16 @@ function ItemRow({ item, onIncrementar, onDecrementar, onEliminar }: {
     }}>
       <View style={{
         width: 44, height: 44, borderRadius: 12,
-        backgroundColor: '#1E1E1E', alignItems: 'center', justifyContent: 'center',
+        backgroundColor: t.surface2, alignItems: 'center', justifyContent: 'center',
       }}>
-        <Ionicons name="bag-outline" size={20} color="#FF6B2B" />
+        <Ionicons name="bag-outline" size={20} color="#10B981" />
       </View>
 
       <View style={{ flex: 1 }}>
-        <Text style={{ color: '#F5F5F5', fontSize: 14, fontWeight: '700' }} numberOfLines={1}>
+        <Text style={{ color: t.text, fontSize: 14, fontWeight: '700' }} numberOfLines={1}>
           {item.producto.nombre}
         </Text>
-        <Text style={{ color: '#FFB830', fontSize: 14, fontWeight: '800', marginTop: 2 }}>
+        <Text style={{ color: '#059669', fontSize: 14, fontWeight: '800', marginTop: 2 }}>
           {formatPrecio(item.producto.precio * item.cantidad)}
         </Text>
       </View>
@@ -60,23 +63,23 @@ function ItemRow({ item, onIncrementar, onDecrementar, onEliminar }: {
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
         <TouchableOpacity
           onPress={onDecrementar}
-          style={{ padding: 7, backgroundColor: '#1E1E1E', borderRadius: 9 }}
+          style={{ padding: 7, backgroundColor: t.surface2, borderRadius: 9 }}
         >
-          <Ionicons name="remove" size={15} color="#888" />
+          <Ionicons name="remove" size={15} color={t.textSecondary} />
         </TouchableOpacity>
-        <Text style={{ color: '#F5F5F5', fontSize: 14, fontWeight: '700', minWidth: 24, textAlign: 'center' }}>
+        <Text style={{ color: t.text, fontSize: 14, fontWeight: '700', minWidth: 24, textAlign: 'center' }}>
           {item.cantidad}
         </Text>
         <TouchableOpacity
           onPress={onIncrementar}
-          style={{ padding: 7, backgroundColor: '#1E1E1E', borderRadius: 9 }}
+          style={{ padding: 7, backgroundColor: t.surface2, borderRadius: 9 }}
         >
-          <Ionicons name="add" size={15} color="#FF6B2B" />
+          <Ionicons name="add" size={15} color="#10B981" />
         </TouchableOpacity>
       </View>
 
       <TouchableOpacity onPress={onEliminar} style={{ padding: 6 }}>
-        <Ionicons name="trash-outline" size={16} color="#3A3A3A" />
+        <Ionicons name="trash-outline" size={16} color={t.border} />
       </TouchableOpacity>
     </View>
   );
@@ -85,6 +88,7 @@ function ItemRow({ item, onIncrementar, onDecrementar, onEliminar }: {
 function VistaCarrito() {
   const { items, agregarItem, decrementarItem, quitarItem, limpiarCarrito, total } = useCarritoStore();
   const { usuario } = useAuthStore();
+  const t = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
   const [puntoSeleccionado, setPuntoSeleccionado] = useState('');
   const [confirmando, setConfirmando] = useState(false);
@@ -119,15 +123,15 @@ function VistaCarrito() {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 40 }}>
         <LinearGradient
-          colors={['#FF8C55', '#FF6B2B']}
+          colors={['#34D399', '#10B981']}
           style={{ width: 68, height: 68, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}
         >
           <Ionicons name="cart-outline" size={30} color="#fff" />
         </LinearGradient>
-        <Text style={{ color: '#F5F5F5', fontSize: 18, fontWeight: '800', marginBottom: 8, textAlign: 'center' }}>
+        <Text style={{ color: t.text, fontSize: 18, fontWeight: '800', marginBottom: 8, textAlign: 'center' }}>
           Tu carrito está vacío
         </Text>
-        <Text style={{ color: '#444', fontSize: 14, textAlign: 'center', lineHeight: 20 }}>
+        <Text style={{ color: t.textMuted, fontSize: 14, textAlign: 'center', lineHeight: 20 }}>
           Explora los productos del campus y agrega algo que te guste
         </Text>
       </View>
@@ -139,7 +143,7 @@ function VistaCarrito() {
       <FlatList
         data={items}
         keyExtractor={(i) => i.producto.id}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 4, paddingBottom: 8 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 4, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
           <ItemRow
@@ -154,18 +158,18 @@ function VistaCarrito() {
       {/* Footer */}
       <View style={{
         paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12,
-        borderTopWidth: 1, borderTopColor: '#1A1A1A',
-        backgroundColor: '#0A0A0A',
+        borderTopWidth: 1, borderTopColor: t.border,
+        backgroundColor: t.bg,
       }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Text style={{ color: '#666', fontSize: 14 }}>
+            <Text style={{ color: t.textMuted, fontSize: 14 }}>
               {items.length} {items.length === 1 ? 'producto' : 'productos'}
             </Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
-            <Text style={{ color: '#555', fontSize: 13 }}>Total</Text>
-            <Text style={{ color: '#FFB830', fontSize: 24, fontWeight: '800' }}>
+            <Text style={{ color: t.textMuted, fontSize: 13 }}>Total</Text>
+            <Text style={{ color: '#059669', fontSize: 24, fontWeight: '800' }}>
               {formatPrecio(totalCarrito)}
             </Text>
           </View>
@@ -179,16 +183,16 @@ function VistaCarrito() {
             ])}
             style={{
               paddingHorizontal: 16, paddingVertical: 15,
-              borderRadius: 14, borderWidth: 1, borderColor: '#2A2A2A',
-              backgroundColor: '#141414',
+              borderRadius: 14, borderWidth: 1, borderColor: t.border,
+              backgroundColor: t.surface,
             }}
           >
-            <Ionicons name="trash-outline" size={18} color="#555" />
+            <Ionicons name="trash-outline" size={18} color={t.textMuted} />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => setModalVisible(true)} activeOpacity={0.85} style={{ flex: 1 }}>
             <LinearGradient
-              colors={['#FF6B2B', '#FFB830']}
+              colors={['#10B981', '#059669']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={{
@@ -213,15 +217,15 @@ function VistaCarrito() {
         />
         <View style={{
           position: 'absolute', bottom: 0, left: 0, right: 0,
-          backgroundColor: '#141414',
+          backgroundColor: t.surface,
           borderTopLeftRadius: 28, borderTopRightRadius: 28,
           padding: 24, paddingBottom: 40,
         }}>
-          <View style={{ width: 36, height: 4, backgroundColor: '#2A2A2A', borderRadius: 2, alignSelf: 'center', marginBottom: 20 }} />
-          <Text style={{ color: '#F5F5F5', fontSize: 20, fontWeight: '800', marginBottom: 4 }}>
+          <View style={{ width: 36, height: 4, backgroundColor: t.border, borderRadius: 2, alignSelf: 'center', marginBottom: 20 }} />
+          <Text style={{ color: t.text, fontSize: 20, fontWeight: '800', marginBottom: 4 }}>
             ¿Dónde recoges?
           </Text>
-          <Text style={{ color: '#555', fontSize: 13, marginBottom: 18 }}>
+          <Text style={{ color: t.textMuted, fontSize: 13, marginBottom: 18 }}>
             Selecciona el punto de entrega en el campus
           </Text>
 
@@ -234,19 +238,19 @@ function VistaCarrito() {
                 flexDirection: 'row', alignItems: 'center',
                 paddingVertical: 14, paddingHorizontal: 16,
                 borderRadius: 14, borderWidth: 1, marginBottom: 8,
-                backgroundColor: puntoSeleccionado === punto ? 'rgba(255,107,43,0.1)' : '#1A1A1A',
-                borderColor: puntoSeleccionado === punto ? 'rgba(255,107,43,0.4)' : '#2A2A2A',
+                backgroundColor: puntoSeleccionado === punto ? 'rgba(16,185,129,0.1)' : t.surface2,
+                borderColor: puntoSeleccionado === punto ? 'rgba(16,185,129,0.4)' : t.border,
               }}
             >
               <Ionicons
                 name={puntoSeleccionado === punto ? 'radio-button-on' : 'radio-button-off'}
                 size={18}
-                color={puntoSeleccionado === punto ? '#FF6B2B' : '#3A3A3A'}
+                color={puntoSeleccionado === punto ? '#10B981' : '#3A3A3A'}
                 style={{ marginRight: 10 }}
               />
               <Ionicons name="location-outline" size={15} color="#555" style={{ marginRight: 8 }} />
               <Text style={{
-                color: puntoSeleccionado === punto ? '#FF6B2B' : '#777',
+                color: puntoSeleccionado === punto ? '#10B981' : t.textSecondary,
                 fontSize: 14,
                 fontWeight: puntoSeleccionado === punto ? '700' : '400',
               }}>
@@ -262,7 +266,7 @@ function VistaCarrito() {
             style={{ marginTop: 8 }}
           >
             <LinearGradient
-              colors={puntoSeleccionado ? ['#FF6B2B', '#FFB830'] : ['#1E1E1E', '#1E1E1E']}
+              colors={puntoSeleccionado ? ['#10B981', '#059669'] : ['#1E1E1E', '#1E1E1E']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={{
@@ -292,26 +296,29 @@ function VistaCarrito() {
 export default function CarritoComprador() {
   const [vistaActiva, setVistaActiva] = useState<'carrito' | 'pedidos'>('carrito');
   const { items } = useCarritoStore();
+  const t = useTheme();
+  const isDark = useThemeStore((s) => s.isDark);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
+    <View style={{ flex: 1, backgroundColor: t.bg }}>
       {/* Header */}
       <LinearGradient
-        colors={['#1C0A00', '#0A0A0A']}
+        colors={t.headerBg}
         style={{ paddingTop: 56, paddingBottom: 16, paddingHorizontal: 20 }}
       >
-        <Text style={{ color: '#F5F5F5', fontSize: 26, fontWeight: '800', letterSpacing: -0.3, marginBottom: 14 }}>
+        <Text style={{ color: t.text, fontSize: 26, fontWeight: '800', letterSpacing: -0.3, marginBottom: 14 }}>
           {vistaActiva === 'carrito' ? 'Mi carrito' : 'Mis pedidos'}
         </Text>
 
         {/* Segment control */}
         <View style={{
           flexDirection: 'row',
-          backgroundColor: '#141414',
+          backgroundColor: isDark ? t.surface : 'rgba(5,150,105,0.08)',
           borderRadius: 12,
           borderWidth: 1,
-          borderColor: '#2A2A2A',
+          borderColor: isDark ? t.border : 'rgba(5,150,105,0.18)',
           padding: 3,
+          overflow: 'hidden',
         }}>
           {(['carrito', 'pedidos'] as const).map((vista) => {
             const activo = vistaActiva === vista;
@@ -326,17 +333,23 @@ export default function CarritoComprador() {
                 style={{ flex: 1 }}
               >
                 {activo ? (
-                  <LinearGradient
-                    colors={['#FF6B2B', '#FFB830']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={{ borderRadius: 9, paddingVertical: 8, alignItems: 'center' }}
-                  >
-                    <Text style={{ color: '#0A0A0A', fontSize: 13, fontWeight: '800' }}>{label}</Text>
-                  </LinearGradient>
+                  isDark ? (
+                    <LinearGradient
+                      colors={['#10B981', '#059669']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={{ borderRadius: 9, paddingVertical: 8, alignItems: 'center' }}
+                    >
+                      <Text style={{ color: '#fff', fontSize: 13, fontWeight: '800' }}>{label}</Text>
+                    </LinearGradient>
+                  ) : (
+                    <View style={{ borderRadius: 9, paddingVertical: 8, alignItems: 'center', backgroundColor: '#059669' }}>
+                      <Text style={{ color: '#fff', fontSize: 13, fontWeight: '800' }}>{label}</Text>
+                    </View>
+                  )
                 ) : (
                   <View style={{ borderRadius: 9, paddingVertical: 8, alignItems: 'center' }}>
-                    <Text style={{ color: '#444', fontSize: 13, fontWeight: '500' }}>{label}</Text>
+                    <Text style={{ color: isDark ? t.textMuted : 'rgba(5,150,105,0.55)', fontSize: 13, fontWeight: '500' }}>{label}</Text>
                   </View>
                 )}
               </TouchableOpacity>
@@ -347,7 +360,7 @@ export default function CarritoComprador() {
 
       {/* Fade header→contenido */}
       <LinearGradient
-        colors={['rgba(28,10,0,0.7)', 'transparent']}
+        colors={isDark ? ['rgba(14,14,14,0.6)', 'transparent'] : ['rgba(0,0,0,0.04)', 'transparent']}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
         style={{ height: 48 }}

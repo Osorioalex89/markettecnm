@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../store/authStore';
+import { useTheme } from '../hooks/useTheme';
 
 import type { Rol } from '../types';
 
@@ -56,12 +57,13 @@ function Campo({
   onSubmitEditing?: () => void;
 }) {
   const [visible, setVisible] = useState(false);
+  const t = useTheme();
 
   return (
     <View style={{ marginBottom: 16 }}>
       <Text
         style={{
-          color: '#999',
+          color: t.textSecondary,
           fontSize: 11,
           fontWeight: '600',
           letterSpacing: 1.5,
@@ -75,19 +77,19 @@ function Campo({
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: '#1E1E1E',
+          backgroundColor: t.surface2,
           borderRadius: 14,
           borderWidth: 1,
-          borderColor: '#2E2E2E',
+          borderColor: t.border,
           paddingHorizontal: 14,
         }}
       >
-        <Ionicons name={icon} size={18} color="#666" style={{ marginRight: 10 }} />
+        <Ionicons name={icon} size={18} color={t.textMuted} style={{ marginRight: 10 }} />
         <TextInput
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor="#444"
+          placeholderTextColor={t.textMuted}
           secureTextEntry={showToggle ? !visible : secureTextEntry}
           autoCapitalize={autoCapitalize ?? 'none'}
           autoCorrect={false}
@@ -95,14 +97,14 @@ function Campo({
           onSubmitEditing={onSubmitEditing}
           style={{
             flex: 1,
-            color: '#F5F5F5',
+            color: t.text,
             fontSize: 15,
             paddingVertical: 14,
           }}
         />
         {showToggle && (
           <TouchableOpacity onPress={() => setVisible((v) => !v)} activeOpacity={0.7} style={{ paddingLeft: 8 }}>
-            <Ionicons name={visible ? 'eye-off-outline' : 'eye-outline'} size={18} color="#666" />
+            <Ionicons name={visible ? 'eye-off-outline' : 'eye-outline'} size={18} color={t.textMuted} />
           </TouchableOpacity>
         )}
       </View>
@@ -120,6 +122,7 @@ export default function LoginScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const { login, loginComoAdmin, registro } = useAuthStore();
+  const t = useTheme();
   const esAdmin = identificador.toLowerCase().trim() === 'admin';
 
   const handleSubmit = async () => {
@@ -160,7 +163,7 @@ export default function LoginScreen() {
     >
       {/* Fondo con gradiente cálido */}
       <LinearGradient
-        colors={['#1C0A00', '#0A0A0A', '#0A0A0A']}
+        colors={[t.gradientHero[0], t.bg, t.bg]}
         locations={[0, 0.45, 1]}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
@@ -168,7 +171,7 @@ export default function LoginScreen() {
       >
         {/* Glow sutil en la parte superior */}
         <LinearGradient
-          colors={['rgba(255,107,43,0.12)', 'transparent']}
+          colors={['rgba(16,185,129,0.12)', 'transparent']}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
           style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 280 }}
@@ -184,7 +187,7 @@ export default function LoginScreen() {
           <View style={{ alignItems: 'center', paddingTop: 64, paddingBottom: 36 }}>
             {/* Ícono con gradiente */}
             <LinearGradient
-              colors={['#FF8C55', '#FF6B2B', '#E05520']}
+              colors={['#34D399', '#10B981', '#059669']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={{
@@ -194,7 +197,7 @@ export default function LoginScreen() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom: 20,
-                shadowColor: '#FF6B2B',
+                shadowColor: '#10B981',
                 shadowOpacity: 0.6,
                 shadowRadius: 24,
                 shadowOffset: { width: 0, height: 8 },
@@ -206,7 +209,7 @@ export default function LoginScreen() {
 
             <Text
               style={{
-                color: '#F5F5F5',
+                color: t.text,
                 fontSize: 36,
                 fontWeight: '800',
                 letterSpacing: -0.5,
@@ -216,7 +219,7 @@ export default function LoginScreen() {
             </Text>
             <Text
               style={{
-                color: '#666',
+                color: t.textMuted,
                 fontSize: 12,
                 marginTop: 4,
                 letterSpacing: 2,
@@ -231,12 +234,12 @@ export default function LoginScreen() {
           <View
             style={{
               marginHorizontal: 20,
-              backgroundColor: 'rgba(20,20,20,0.95)',
+              backgroundColor: t.surface,
               borderRadius: 28,
               borderWidth: 1,
-              borderColor: 'rgba(255,107,43,0.2)',
+              borderColor: 'rgba(16,185,129,0.2)',
               overflow: 'hidden',
-              shadowColor: '#FF6B2B',
+              shadowColor: '#10B981',
               shadowOpacity: 0.15,
               shadowRadius: 40,
               shadowOffset: { width: 0, height: 0 },
@@ -245,7 +248,7 @@ export default function LoginScreen() {
           >
             {/* Línea gradiente superior */}
             <LinearGradient
-              colors={['#FF6B2B', '#FFB830', 'transparent']}
+              colors={['#10B981', '#059669', 'transparent']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={{ height: 2 }}
@@ -257,7 +260,7 @@ export default function LoginScreen() {
                 <View
                   style={{
                     flexDirection: 'row',
-                    backgroundColor: '#1A1A1A',
+                    backgroundColor: t.surface2,
                     borderRadius: 16,
                     padding: 4,
                     marginBottom: 24,
@@ -272,7 +275,7 @@ export default function LoginScreen() {
                     >
                       {modo === m ? (
                         <LinearGradient
-                          colors={['#FF6B2B', '#E05520']}
+                          colors={['#10B981', '#059669']}
                           start={{ x: 0, y: 0 }}
                           end={{ x: 1, y: 0 }}
                           style={{ paddingVertical: 10, alignItems: 'center', borderRadius: 12 }}
@@ -283,7 +286,7 @@ export default function LoginScreen() {
                         </LinearGradient>
                       ) : (
                         <View style={{ paddingVertical: 10, alignItems: 'center' }}>
-                          <Text style={{ color: '#666', fontWeight: '600', fontSize: 13 }}>
+                          <Text style={{ color: t.textMuted, fontWeight: '600', fontSize: 13 }}>
                             {m === 'login' ? 'Iniciar sesión' : 'Registrarse'}
                           </Text>
                         </View>
@@ -299,17 +302,17 @@ export default function LoginScreen() {
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
-                    backgroundColor: 'rgba(255,184,48,0.1)',
+                    backgroundColor: 'rgba(5,150,105,0.1)',
                     borderRadius: 12,
                     borderWidth: 1,
-                    borderColor: 'rgba(255,184,48,0.3)',
+                    borderColor: 'rgba(5,150,105,0.3)',
                     padding: 12,
                     marginBottom: 20,
                     gap: 8,
                   }}
                 >
-                  <Ionicons name="shield-checkmark" size={18} color="#FFB830" />
-                  <Text style={{ color: '#FFB830', fontWeight: '600', fontSize: 13 }}>
+                  <Ionicons name="shield-checkmark" size={18} color="#059669" />
+                  <Text style={{ color: '#059669', fontWeight: '600', fontSize: 13 }}>
                     Modo Administrador activado
                   </Text>
                 </View>
@@ -364,7 +367,7 @@ export default function LoginScreen() {
                       >
                         {rol === value ? (
                           <LinearGradient
-                            colors={['#FF6B2B', '#E05520']}
+                            colors={['#10B981', '#059669']}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 1 }}
                             style={{
@@ -386,13 +389,13 @@ export default function LoginScreen() {
                               alignItems: 'center',
                               borderRadius: 14,
                               borderWidth: 1,
-                              borderColor: '#2E2E2E',
-                              backgroundColor: '#1E1E1E',
+                              borderColor: t.border,
+                              backgroundColor: t.surface2,
                               gap: 4,
                             }}
                           >
-                            <Ionicons name={icon} size={20} color="#555" />
-                            <Text style={{ color: '#666', fontWeight: '600', fontSize: 12 }}>
+                            <Ionicons name={icon} size={20} color={t.textMuted} />
+                            <Text style={{ color: t.textMuted, fontWeight: '600', fontSize: 12 }}>
                               {label}
                             </Text>
                           </View>
@@ -444,13 +447,13 @@ export default function LoginScreen() {
                 style={{ borderRadius: 18, overflow: 'hidden', marginTop: 4 }}
               >
                 <LinearGradient
-                  colors={cargando ? ['#7A3010', '#7A3010'] : ['#FF6B2B', '#E05520']}
+                  colors={cargando ? ['#064E3B', '#064E3B'] : ['#10B981', '#059669']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={{
                     paddingVertical: 16,
                     alignItems: 'center',
-                    shadowColor: '#FF6B2B',
+                    shadowColor: '#10B981',
                     shadowOpacity: 0.5,
                     shadowRadius: 16,
                     shadowOffset: { width: 0, height: 6 },
@@ -481,7 +484,7 @@ export default function LoginScreen() {
               {!esAdmin && (
                 <Text
                   style={{
-                    color: '#555',
+                    color: t.textMuted,
                     fontSize: 12,
                     textAlign: 'center',
                     marginTop: 20,
@@ -490,7 +493,7 @@ export default function LoginScreen() {
                 >
                   ¿Eres administrador?{' '}
                   <Text
-                    style={{ color: '#FFB830' }}
+                    style={{ color: '#059669' }}
                     onPress={() => setIdentificador('admin')}
                   >
                     Toca aquí
@@ -502,7 +505,7 @@ export default function LoginScreen() {
 
           {/* Footer */}
           <View style={{ alignItems: 'center', paddingVertical: 32 }}>
-            <Text style={{ color: '#333', fontSize: 11, letterSpacing: 1 }}>
+            <Text style={{ color: t.textMuted, fontSize: 11, letterSpacing: 1 }}>
               SOLO PARA ALUMNOS Y STAFF · TECNM
             </Text>
           </View>

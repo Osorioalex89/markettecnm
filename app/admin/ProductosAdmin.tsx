@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fetchTodosProductos, toggleProductoActivo, eliminarProducto } from '../../services/adminService';
+import { useTheme } from '../../hooks/useTheme';
 import type { ProductoAdmin } from '../../services/adminService';
 
 function formatPrecio(precio: number): string {
@@ -19,6 +20,7 @@ function formatPrecio(precio: number): string {
 
 export default function ProductosAdmin() {
   const insets = useSafeAreaInsets();
+  const t = useTheme();
   const [productos, setProductos] = useState<ProductoAdmin[]>([]);
   const [cargando, setCargando] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
@@ -99,10 +101,10 @@ export default function ProductosAdmin() {
     return (
       <View
         style={{
-          backgroundColor: '#141414',
+          backgroundColor: t.surface,
           borderRadius: 18,
           borderWidth: 1,
-          borderColor: activo ? '#222' : '#2A1A1A',
+          borderColor: activo ? t.border : '#2A1A1A',
           marginBottom: 10,
           overflow: 'hidden',
           opacity: activo ? 1 : 0.6,
@@ -115,36 +117,36 @@ export default function ProductosAdmin() {
               width: 52,
               height: 52,
               borderRadius: 14,
-              backgroundColor: '#1A1A1A',
+              backgroundColor: t.surface2,
               overflow: 'hidden',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <Ionicons name="cube-outline" size={22} color="#333" />
+            <Ionicons name="cube-outline" size={22} color={t.border} />
           </View>
 
           <View style={{ flex: 1 }}>
-            <Text style={{ color: '#F5F5F5', fontSize: 14, fontWeight: '700' }} numberOfLines={1}>
+            <Text style={{ color: t.text, fontSize: 14, fontWeight: '700' }} numberOfLines={1}>
               {item.nombre}
             </Text>
-            <Text style={{ color: '#666', fontSize: 12, marginTop: 2 }} numberOfLines={1}>
+            <Text style={{ color: t.textMuted, fontSize: 12, marginTop: 2 }} numberOfLines={1}>
               {item.vendedor_nombre}
             </Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 5 }}>
-              <Text style={{ color: '#FF6B2B', fontSize: 13, fontWeight: '700' }}>
+              <Text style={{ color: '#10B981', fontSize: 13, fontWeight: '700' }}>
                 {formatPrecio(item.precio)}
               </Text>
               {item.categoria && (
                 <View
                   style={{
-                    backgroundColor: '#1A1A1A',
+                    backgroundColor: t.surface2,
                     borderRadius: 6,
                     paddingHorizontal: 6,
                     paddingVertical: 2,
                   }}
                 >
-                  <Text style={{ color: '#555', fontSize: 10 }}>{item.categoria}</Text>
+                  <Text style={{ color: t.textMuted, fontSize: 10 }}>{item.categoria}</Text>
                 </View>
               )}
             </View>
@@ -237,23 +239,23 @@ export default function ProductosAdmin() {
   const ocultos = productos.length - activos;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
+    <View style={{ flex: 1, backgroundColor: t.bg }}>
       <LinearGradient
-        colors={['#1C0800', '#0A0A0A']}
+        colors={t.headerBg}
         style={{
           paddingTop: insets.top + 16,
           paddingBottom: 20,
           paddingHorizontal: 20,
         }}
       >
-        <Text style={{ color: '#666', fontSize: 11, fontWeight: '600', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>
+        <Text style={{ color: t.textMuted, fontSize: 11, fontWeight: '600', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>
           Administración
         </Text>
-        <Text style={{ color: '#F5F5F5', fontSize: 24, fontWeight: '800', letterSpacing: -0.3 }}>
+        <Text style={{ color: t.text, fontSize: 24, fontWeight: '800', letterSpacing: -0.3 }}>
           Productos
         </Text>
         {!cargando && (
-          <Text style={{ color: '#555', fontSize: 13, marginTop: 4 }}>
+          <Text style={{ color: t.textMuted, fontSize: 13, marginTop: 4 }}>
             {activos} activo{activos !== 1 ? 's' : ''}{ocultos > 0 ? ` · ${ocultos} oculto${ocultos !== 1 ? 's' : ''}` : ''}
           </Text>
         )}
@@ -261,19 +263,19 @@ export default function ProductosAdmin() {
 
       {cargando ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color="#FF6B2B" size="large" />
+          <ActivityIndicator color="#10B981" size="large" />
         </View>
       ) : (
         <FlatList
           data={productos}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
-          contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}
+          contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 100 }}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={{ alignItems: 'center', paddingTop: 80 }}>
-              <Ionicons name="cube-outline" size={48} color="#2A2A2A" />
-              <Text style={{ color: '#444', fontSize: 14, marginTop: 12 }}>
+              <Ionicons name="cube-outline" size={48} color={t.border} />
+              <Text style={{ color: t.border, fontSize: 14, marginTop: 12 }}>
                 No hay productos publicados
               </Text>
             </View>

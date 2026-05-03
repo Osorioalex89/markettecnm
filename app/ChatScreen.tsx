@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+﻿import { useEffect, useRef, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthStore } from '../store/authStore';
+import { useTheme } from '../hooks/useTheme';
 import {
   fetchMensajes,
   enviarMensaje,
@@ -49,6 +50,7 @@ function formatFecha(iso: string | null): string {
 
 export default function ChatScreen() {
   const { usuario } = useAuthStore();
+  const t = useTheme();
   const navigation = useNavigation();
   const route = useRoute<RouteProp<ChatParams, 'ChatScreen'>>();
   const { conversacionId, otroNombre, otroId } = route.params;
@@ -145,13 +147,13 @@ export default function ChatScreen() {
           <View style={{ alignItems: 'center', marginVertical: 12 }}>
             <View
               style={{
-                backgroundColor: '#1A1A1A',
+                backgroundColor: t.surface2,
                 borderRadius: 12,
                 paddingHorizontal: 12,
                 paddingVertical: 4,
               }}
             >
-              <Text style={{ color: '#555', fontSize: 11 }}>{fechaActual}</Text>
+              <Text style={{ color: t.textMuted, fontSize: 11 }}>{fechaActual}</Text>
             </View>
           </View>
         )}
@@ -166,7 +168,7 @@ export default function ChatScreen() {
           <View style={{ maxWidth: '75%' }}>
             {esMio ? (
               <LinearGradient
-                colors={['#FF8C55', '#FF6B2B']}
+                colors={['#34D399', '#10B981']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={{
@@ -186,19 +188,19 @@ export default function ChatScreen() {
             ) : (
               <View
                 style={{
-                  backgroundColor: '#1E1E1E',
+                  backgroundColor: t.surface2,
                   borderRadius: 18,
                   borderBottomLeftRadius: 4,
                   paddingHorizontal: 14,
                   paddingVertical: 10,
                   borderWidth: 1,
-                  borderColor: '#2A2A2A',
+                  borderColor: t.border,
                 }}
               >
-                <Text style={{ color: '#E0E0E0', fontSize: 14, lineHeight: 20 }}>
+                <Text style={{ color: t.text, fontSize: 14, lineHeight: 20 }}>
                   {item.contenido}
                 </Text>
-                <Text style={{ color: '#555', fontSize: 10, marginTop: 4 }}>
+                <Text style={{ color: t.textMuted, fontSize: 10, marginTop: 4 }}>
                   {formatHora(item.enviado_en)}
                 </Text>
               </View>
@@ -210,10 +212,10 @@ export default function ChatScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
+    <View style={{ flex: 1, backgroundColor: t.bg }}>
       {/* Header */}
       <LinearGradient
-        colors={['#1C0A00', '#0A0A0A']}
+        colors={t.headerBg}
         style={{
           paddingTop: insets.top + 8,
           paddingBottom: 14,
@@ -222,7 +224,7 @@ export default function ChatScreen() {
           alignItems: 'center',
           gap: 12,
           borderBottomWidth: 1,
-          borderBottomColor: '#1A1A1A',
+          borderBottomColor: t.border,
         }}
       >
         <TouchableOpacity
@@ -232,16 +234,16 @@ export default function ChatScreen() {
             width: 36,
             height: 36,
             borderRadius: 12,
-            backgroundColor: '#1A1A1A',
+            backgroundColor: t.surface2,
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Ionicons name="chevron-back" size={20} color="#F5F5F5" />
+          <Ionicons name="chevron-back" size={20} color={t.text} />
         </TouchableOpacity>
 
         <LinearGradient
-          colors={['#FF8C55', '#FF6B2B']}
+          colors={['#34D399', '#10B981']}
           style={{
             width: 38,
             height: 38,
@@ -256,10 +258,10 @@ export default function ChatScreen() {
         </LinearGradient>
 
         <View style={{ flex: 1 }}>
-          <Text style={{ color: '#F5F5F5', fontSize: 16, fontWeight: '700' }} numberOfLines={1}>
+          <Text style={{ color: t.text, fontSize: 16, fontWeight: '700' }} numberOfLines={1}>
             {otroNombre}
           </Text>
-          <Text style={{ color: '#FF6B2B', fontSize: 11, marginTop: 1 }}>En línea</Text>
+          <Text style={{ color: '#10B981', fontSize: 11, marginTop: 1 }}>En línea</Text>
         </View>
       </LinearGradient>
 
@@ -271,7 +273,7 @@ export default function ChatScreen() {
       >
         {/* Fondo con gradiente diagonal + blobs decorativos */}
         <LinearGradient
-          colors={['#130800', '#0A0A0A', '#0C0A0A']}
+          colors={[t.gradientHero[0], t.bg, t.bg]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
@@ -280,17 +282,17 @@ export default function ChatScreen() {
         <View pointerEvents="none" style={{
           position: 'absolute', top: 40, right: -50,
           width: 220, height: 220, borderRadius: 110,
-          backgroundColor: '#FF6B2B', opacity: 0.04,
+          backgroundColor: '#10B981', opacity: 0.04,
         }} />
         <View pointerEvents="none" style={{
           position: 'absolute', bottom: 120, left: -70,
           width: 260, height: 260, borderRadius: 130,
-          backgroundColor: '#FF6B2B', opacity: 0.03,
+          backgroundColor: '#10B981', opacity: 0.03,
         }} />
 
         {cargando ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <ActivityIndicator color="#FF6B2B" />
+            <ActivityIndicator color="#10B981" />
           </View>
         ) : (
           <FlatList
@@ -302,8 +304,8 @@ export default function ChatScreen() {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 80 }}>
-                <Ionicons name="chatbubbles-outline" size={48} color="#2A2A2A" />
-                <Text style={{ color: '#444', fontSize: 14, marginTop: 12 }}>
+                <Ionicons name="chatbubbles-outline" size={48} color={t.textMuted} />
+                <Text style={{ color: t.textMuted, fontSize: 14, marginTop: 12 }}>
                   Inicia la conversación
                 </Text>
               </View>
@@ -320,8 +322,8 @@ export default function ChatScreen() {
             paddingTop: 10,
             paddingBottom: insets.bottom + 10,
             borderTopWidth: 1,
-            borderTopColor: '#1A1A1A',
-            backgroundColor: 'rgba(10,10,10,0.95)',
+            borderTopColor: t.border,
+            backgroundColor: t.bg,
             gap: 8,
           }}
         >
@@ -329,18 +331,18 @@ export default function ChatScreen() {
             value={texto}
             onChangeText={setTexto}
             placeholder="Escribe un mensaje..."
-            placeholderTextColor="#444"
+            placeholderTextColor={t.textMuted}
             multiline
             style={{
               flex: 1,
-              backgroundColor: '#141414',
+              backgroundColor: t.surface,
               borderWidth: 1,
-              borderColor: '#2A2A2A',
+              borderColor: t.border,
               borderRadius: 20,
               paddingHorizontal: 16,
               paddingTop: 10,
               paddingBottom: 10,
-              color: '#F5F5F5',
+              color: t.text,
               fontSize: 14,
               maxHeight: 100,
             }}
@@ -351,7 +353,7 @@ export default function ChatScreen() {
             activeOpacity={0.8}
           >
             <LinearGradient
-              colors={texto.trim() ? ['#FF8C55', '#FF6B2B'] : ['#222', '#222']}
+              colors={texto.trim() ? ['#34D399', '#10B981'] : ['#222', '#222']}
               style={{
                 width: 44,
                 height: 44,

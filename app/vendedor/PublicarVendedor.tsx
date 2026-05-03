@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView, Image,
   Alert, ActivityIndicator, KeyboardAvoidingView, Platform,
@@ -7,12 +7,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuthStore } from '../../store/authStore';
+import { useTheme } from '../../hooks/useTheme';
+import { useThemeStore } from '../../store/themeStore';
 import { publicarProducto } from '../../services/productosService';
 
 const CATEGORIAS = ['Electrónica', 'Útiles', 'Libros', 'Accesorios', 'Ropa', 'Alimentos', 'Servicios'];
 
 export default function PublicarVendedor() {
   const { usuario } = useAuthStore();
+  const t = useTheme();
+  const isDark = useThemeStore((s) => s.isDark);
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [precio, setPrecio] = useState('');
@@ -76,29 +80,29 @@ export default function PublicarVendedor() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: '#0A0A0A' }}
+      style={{ flex: 1, backgroundColor: t.bg }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 48 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
         <LinearGradient
-          colors={['#1C0A00', '#0A0A0A']}
+          colors={t.headerBg}
           style={{ paddingTop: 56, paddingBottom: 24, paddingHorizontal: 20 }}
         >
-          <Text style={{ color: '#F5F5F5', fontSize: 26, fontWeight: '800', letterSpacing: -0.3 }}>
+          <Text style={{ color: t.text, fontSize: 26, fontWeight: '800', letterSpacing: -0.3 }}>
             Publicar producto
           </Text>
-          <Text style={{ color: '#666', fontSize: 13, marginTop: 4 }}>
+          <Text style={{ color: t.textMuted, fontSize: 13, marginTop: 4 }}>
             Completa los datos para poner en venta
           </Text>
         </LinearGradient>
 
         {/* Fade header→contenido */}
         <LinearGradient
-          colors={['rgba(28,10,0,0.7)', 'transparent']}
+          colors={isDark ? ['rgba(14,14,14,0.6)', 'transparent'] : ['rgba(0,0,0,0.04)', 'transparent']}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
           style={{ height: 48 }}
@@ -110,10 +114,10 @@ export default function PublicarVendedor() {
           <TouchableOpacity onPress={seleccionarImagen} activeOpacity={0.8}>
             <View style={{
               height: 160,
-              backgroundColor: '#141414',
+              backgroundColor: t.surface,
               borderRadius: 20,
               borderWidth: 1,
-              borderColor: imagenUri ? 'rgba(255,184,48,0.4)' : '#2E2E2E',
+              borderColor: imagenUri ? 'rgba(5,150,105,0.4)' : t.border,
               alignItems: 'center',
               justifyContent: 'center',
               overflow: 'hidden',
@@ -125,14 +129,14 @@ export default function PublicarVendedor() {
                     position: 'absolute', bottom: 10, right: 10,
                     backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 10, padding: 6,
                   }}>
-                    <Ionicons name="pencil-outline" size={14} color="#FFB830" />
+                    <Ionicons name="pencil-outline" size={14} color="#059669" />
                   </View>
                 </>
               ) : (
                 <View style={{ alignItems: 'center', gap: 8 }}>
-                  <Ionicons name="image-outline" size={36} color="#444" />
-                  <Text style={{ color: '#555', fontSize: 13 }}>Toca para agregar foto</Text>
-                  <Text style={{ color: '#3A3A3A', fontSize: 11 }}>Opcional · JPG, PNG, WebP · Máx. 5 MB</Text>
+                  <Ionicons name="image-outline" size={36} color={t.border} />
+                  <Text style={{ color: t.textMuted, fontSize: 13 }}>Toca para agregar foto</Text>
+                  <Text style={{ color: t.border, fontSize: 11 }}>Opcional · JPG, PNG, WebP · Máx. 5 MB</Text>
                 </View>
               )}
             </View>
@@ -140,23 +144,23 @@ export default function PublicarVendedor() {
 
           {/* Nombre */}
           <View>
-            <Text style={{ color: '#666', fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
+            <Text style={{ color: t.textMuted, fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
               NOMBRE DEL PRODUCTO *
             </Text>
             <TextInput
               value={nombre}
               onChangeText={setNombre}
               placeholder="Ej. Calculadora científica"
-              placeholderTextColor="#333"
+              placeholderTextColor={t.border}
               maxLength={80}
               style={{
-                backgroundColor: '#141414',
+                backgroundColor: t.surface,
                 borderRadius: 14,
                 borderWidth: 1,
-                borderColor: '#2A2A2A',
+                borderColor: t.border,
                 paddingHorizontal: 16,
                 paddingVertical: 14,
-                color: '#F5F5F5',
+                color: t.text,
                 fontSize: 15,
               }}
             />
@@ -164,25 +168,25 @@ export default function PublicarVendedor() {
 
           {/* Descripción */}
           <View>
-            <Text style={{ color: '#666', fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
+            <Text style={{ color: t.textMuted, fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
               DESCRIPCIÓN
             </Text>
             <TextInput
               value={descripcion}
               onChangeText={setDescripcion}
               placeholder="Describe tu producto, estado, incluye detalles..."
-              placeholderTextColor="#333"
+              placeholderTextColor={t.border}
               multiline
               numberOfLines={3}
               maxLength={300}
               style={{
-                backgroundColor: '#141414',
+                backgroundColor: t.surface,
                 borderRadius: 14,
                 borderWidth: 1,
-                borderColor: '#2A2A2A',
+                borderColor: t.border,
                 paddingHorizontal: 16,
                 paddingVertical: 14,
-                color: '#F5F5F5',
+                color: t.text,
                 fontSize: 15,
                 textAlignVertical: 'top',
                 minHeight: 90,
@@ -193,46 +197,46 @@ export default function PublicarVendedor() {
           {/* Precio y Stock */}
           <View style={{ flexDirection: 'row', gap: 12 }}>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: '#666', fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
+              <Text style={{ color: t.textMuted, fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
                 PRECIO ($) *
               </Text>
               <TextInput
                 value={precio}
                 onChangeText={setPrecio}
                 placeholder="0.00"
-                placeholderTextColor="#333"
+                placeholderTextColor={t.border}
                 keyboardType="decimal-pad"
                 style={{
-                  backgroundColor: '#141414',
+                  backgroundColor: t.surface,
                   borderRadius: 14,
                   borderWidth: 1,
-                  borderColor: '#2A2A2A',
+                  borderColor: t.border,
                   paddingHorizontal: 16,
                   paddingVertical: 14,
-                  color: '#FFB830',
+                  color: '#059669',
                   fontSize: 20,
                   fontWeight: '800',
                 }}
               />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: '#666', fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
+              <Text style={{ color: t.textMuted, fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
                 STOCK *
               </Text>
               <TextInput
                 value={stock}
                 onChangeText={setStock}
                 placeholder="1"
-                placeholderTextColor="#333"
+                placeholderTextColor={t.border}
                 keyboardType="number-pad"
                 style={{
-                  backgroundColor: '#141414',
+                  backgroundColor: t.surface,
                   borderRadius: 14,
                   borderWidth: 1,
-                  borderColor: '#2A2A2A',
+                  borderColor: t.border,
                   paddingHorizontal: 16,
                   paddingVertical: 14,
-                  color: '#F5F5F5',
+                  color: t.text,
                   fontSize: 15,
                 }}
               />
@@ -241,7 +245,7 @@ export default function PublicarVendedor() {
 
           {/* Categoría */}
           <View>
-            <Text style={{ color: '#666', fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
+            <Text style={{ color: t.textMuted, fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
               CATEGORÍA *
             </Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
@@ -255,12 +259,12 @@ export default function PublicarVendedor() {
                     paddingVertical: 9,
                     borderRadius: 20,
                     borderWidth: 1,
-                    backgroundColor: categoria === cat ? 'rgba(255,184,48,0.12)' : '#141414',
-                    borderColor: categoria === cat ? 'rgba(255,184,48,0.45)' : '#2A2A2A',
+                    backgroundColor: categoria === cat ? 'rgba(5,150,105,0.12)' : t.surface,
+                    borderColor: categoria === cat ? 'rgba(5,150,105,0.45)' : t.border,
                   }}
                 >
                   <Text style={{
-                    color: categoria === cat ? '#FFB830' : '#555',
+                    color: categoria === cat ? '#059669' : t.textMuted,
                     fontSize: 13,
                     fontWeight: categoria === cat ? '700' : '500',
                   }}>
@@ -274,7 +278,7 @@ export default function PublicarVendedor() {
           {/* Botón publicar */}
           <TouchableOpacity onPress={handlePublicar} disabled={cargando} activeOpacity={0.85} style={{ marginTop: 4 }}>
             <LinearGradient
-              colors={cargando ? ['#2A2A2A', '#2A2A2A'] : ['#FFB830', '#FF6B2B']}
+              colors={cargando ? ['#2A2A2A', '#2A2A2A'] : ['#10B981', '#059669']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={{

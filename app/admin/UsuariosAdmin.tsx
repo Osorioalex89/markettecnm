@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,15 +11,17 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fetchTodosUsuarios, cambiarRolUsuario } from '../../services/adminService';
+import { useTheme } from '../../hooks/useTheme';
 import type { Perfil } from '../../types';
 
 const ROL_CONFIG = {
-  comprador: { label: 'Comprador', color: '#FF6B2B', bg: 'rgba(255,107,43,0.12)', border: 'rgba(255,107,43,0.3)' },
-  vendedor:  { label: 'Vendedor',  color: '#FFB830', bg: 'rgba(255,184,48,0.12)', border: 'rgba(255,184,48,0.3)' },
+  comprador: { label: 'Comprador', color: '#10B981', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)' },
+  vendedor:  { label: 'Vendedor',  color: '#059669', bg: 'rgba(5,150,105,0.12)', border: 'rgba(5,150,105,0.3)' },
 } as const;
 
 export default function UsuariosAdmin() {
   const insets = useSafeAreaInsets();
+  const t = useTheme();
   const [usuarios, setUsuarios] = useState<Perfil[]>([]);
   const [cargando, setCargando] = useState(true);
   const [cambiando, setCambiando] = useState<string | null>(null);
@@ -73,16 +75,16 @@ export default function UsuariosAdmin() {
     return (
       <View
         style={{
-          backgroundColor: '#141414',
+          backgroundColor: t.surface,
           borderRadius: 18,
           borderWidth: 1,
-          borderColor: '#222',
+          borderColor: t.border,
           marginBottom: 10,
           overflow: 'hidden',
         }}
       >
         <LinearGradient
-          colors={[config.color === '#FF6B2B' ? 'rgba(255,107,43,0.06)' : 'rgba(255,184,48,0.06)', 'transparent']}
+          colors={[config.color === '#10B981' ? 'rgba(16,185,129,0.06)' : 'rgba(5,150,105,0.06)', 'transparent']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
@@ -90,7 +92,7 @@ export default function UsuariosAdmin() {
         />
         <View style={{ flexDirection: 'row', alignItems: 'center', padding: 14, gap: 12 }}>
           <LinearGradient
-            colors={config.color === '#FF6B2B' ? ['#FF8C55', '#FF6B2B'] : ['#FFD060', '#FFB830']}
+            colors={config.color === '#10B981' ? ['#34D399', '#10B981'] : ['#6EE7B7', '#34D399']}
             style={{
               width: 44,
               height: 44,
@@ -105,10 +107,10 @@ export default function UsuariosAdmin() {
           </LinearGradient>
 
           <View style={{ flex: 1 }}>
-            <Text style={{ color: '#F5F5F5', fontSize: 14, fontWeight: '700' }} numberOfLines={1}>
+            <Text style={{ color: t.text, fontSize: 14, fontWeight: '700' }} numberOfLines={1}>
               {item.nombre}
             </Text>
-            <Text style={{ color: '#555', fontSize: 12, marginTop: 2 }}>
+            <Text style={{ color: t.textMuted, fontSize: 12, marginTop: 2 }}>
               {item.matricula ?? 'Sin matrícula'}
             </Text>
           </View>
@@ -137,20 +139,20 @@ export default function UsuariosAdmin() {
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: 4,
-                backgroundColor: '#1A1A1A',
+                backgroundColor: t.surface2,
                 borderRadius: 8,
                 borderWidth: 1,
-                borderColor: '#2E2E2E',
+                borderColor: t.border,
                 paddingHorizontal: 8,
                 paddingVertical: 4,
               }}
             >
               {esCambiando ? (
-                <ActivityIndicator size={10} color="#555" />
+                <ActivityIndicator size={10} color={t.textMuted} />
               ) : (
-                <Ionicons name="swap-horizontal-outline" size={12} color="#555" />
+                <Ionicons name="swap-horizontal-outline" size={12} color={t.textMuted} />
               )}
-              <Text style={{ color: '#555', fontSize: 10, fontWeight: '600' }}>
+              <Text style={{ color: t.textMuted, fontSize: 10, fontWeight: '600' }}>
                 {item.rol === 'comprador' ? 'Hacer vendedor' : 'Hacer comprador'}
               </Text>
             </TouchableOpacity>
@@ -161,23 +163,23 @@ export default function UsuariosAdmin() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
+    <View style={{ flex: 1, backgroundColor: t.bg }}>
       <LinearGradient
-        colors={['#1C0800', '#0A0A0A']}
+        colors={t.headerBg}
         style={{
           paddingTop: insets.top + 16,
           paddingBottom: 20,
           paddingHorizontal: 20,
         }}
       >
-        <Text style={{ color: '#666', fontSize: 11, fontWeight: '600', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>
+        <Text style={{ color: t.textMuted, fontSize: 11, fontWeight: '600', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>
           Administración
         </Text>
-        <Text style={{ color: '#F5F5F5', fontSize: 24, fontWeight: '800', letterSpacing: -0.3 }}>
+        <Text style={{ color: t.text, fontSize: 24, fontWeight: '800', letterSpacing: -0.3 }}>
           Usuarios
         </Text>
         {!cargando && (
-          <Text style={{ color: '#555', fontSize: 13, marginTop: 4 }}>
+          <Text style={{ color: t.textMuted, fontSize: 13, marginTop: 4 }}>
             {usuarios.length} alumno{usuarios.length !== 1 ? 's' : ''} registrado{usuarios.length !== 1 ? 's' : ''}
           </Text>
         )}
@@ -185,19 +187,19 @@ export default function UsuariosAdmin() {
 
       {cargando ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color="#FF6B2B" size="large" />
+          <ActivityIndicator color="#10B981" size="large" />
         </View>
       ) : (
         <FlatList
           data={usuarios}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
-          contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}
+          contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 100 }}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={{ alignItems: 'center', paddingTop: 80 }}>
-              <Ionicons name="people-outline" size={48} color="#2A2A2A" />
-              <Text style={{ color: '#444', fontSize: 14, marginTop: 12 }}>
+              <Ionicons name="people-outline" size={48} color={t.border} />
+              <Text style={{ color: t.border, fontSize: 14, marginTop: 12 }}>
                 No hay usuarios registrados
               </Text>
             </View>

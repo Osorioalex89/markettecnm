@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, ScrollView, RefreshControl, ActivityIndicator,
   TouchableOpacity, Modal, TextInput, Image, Alert,
@@ -9,6 +9,8 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../store/authStore';
+import { useTheme } from '../../hooks/useTheme';
+import { useThemeStore } from '../../store/themeStore';
 import {
   fetchMisProductos, editarProducto, eliminarProducto,
   type ProductoConVendedor,
@@ -32,6 +34,7 @@ type EditModalProps = {
 
 function EditarProductoModal({ producto, vendedorId, visible, onClose, onGuardado }: EditModalProps) {
   const insets = useSafeAreaInsets();
+  const t = useTheme();
   const [nombre, setNombre] = useState(producto.nombre);
   const [descripcion, setDescripcion] = useState(producto.descripcion ?? '');
   const [precio, setPrecio] = useState(String(producto.precio));
@@ -99,20 +102,20 @@ function EditarProductoModal({ producto, vendedorId, visible, onClose, onGuardad
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView
-        style={{ flex: 1, backgroundColor: '#0A0A0A' }}
+        style={{ flex: 1, backgroundColor: t.bg }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* Header */}
         <LinearGradient
-          colors={['#1C0A00', '#0A0A0A']}
+          colors={t.gradientHero}
           style={{ paddingTop: insets.top + 16, paddingBottom: 20, paddingHorizontal: 20 }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <View>
-              <Text style={{ color: '#F5F5F5', fontSize: 22, fontWeight: '800', letterSpacing: -0.3 }}>
+              <Text style={{ color: t.text, fontSize: 22, fontWeight: '800', letterSpacing: -0.3 }}>
                 Editar producto
               </Text>
-              <Text style={{ color: '#666', fontSize: 13, marginTop: 2 }} numberOfLines={1}>
+              <Text style={{ color: t.textMuted, fontSize: 13, marginTop: 2 }} numberOfLines={1}>
                 {producto.nombre}
               </Text>
             </View>
@@ -121,24 +124,24 @@ function EditarProductoModal({ producto, vendedorId, visible, onClose, onGuardad
               activeOpacity={0.7}
               style={{
                 width: 36, height: 36, borderRadius: 10,
-                backgroundColor: '#1E1E1E', borderWidth: 1, borderColor: '#2A2A2A',
+                backgroundColor: t.surface2, borderWidth: 1, borderColor: t.border,
                 alignItems: 'center', justifyContent: 'center',
               }}
             >
-              <Ionicons name="close" size={18} color="#666" />
+              <Ionicons name="close" size={18} color={t.textMuted} />
             </TouchableOpacity>
           </View>
         </LinearGradient>
 
         <ScrollView
-          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 48, gap: 18 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100, gap: 18 }}
           showsVerticalScrollIndicator={false}
         >
           {/* Imagen */}
           <TouchableOpacity onPress={seleccionarImagen} activeOpacity={0.8}>
             <View style={{
-              height: 150, backgroundColor: '#141414', borderRadius: 18,
-              borderWidth: 1, borderColor: imagenUri ? 'rgba(255,184,48,0.4)' : '#2E2E2E',
+              height: 150, backgroundColor: t.surface, borderRadius: 18,
+              borderWidth: 1, borderColor: imagenUri ? 'rgba(5,150,105,0.4)' : t.border,
               alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
             }}>
               {imagenMostrada ? (
@@ -149,14 +152,14 @@ function EditarProductoModal({ producto, vendedorId, visible, onClose, onGuardad
                     backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 9, padding: 6,
                     flexDirection: 'row', alignItems: 'center', gap: 4,
                   }}>
-                    <Ionicons name="pencil-outline" size={12} color="#FFB830" />
-                    <Text style={{ color: '#FFB830', fontSize: 11, fontWeight: '600' }}>Cambiar</Text>
+                    <Ionicons name="pencil-outline" size={12} color="#059669" />
+                    <Text style={{ color: '#059669', fontSize: 11, fontWeight: '600' }}>Cambiar</Text>
                   </View>
                 </>
               ) : (
                 <View style={{ alignItems: 'center', gap: 6 }}>
-                  <Ionicons name="image-outline" size={32} color="#444" />
-                  <Text style={{ color: '#555', fontSize: 13 }}>Toca para agregar foto</Text>
+                  <Ionicons name="image-outline" size={32} color={t.border} />
+                  <Text style={{ color: t.textMuted, fontSize: 13 }}>Toca para agregar foto</Text>
                 </View>
               )}
             </View>
@@ -164,37 +167,37 @@ function EditarProductoModal({ producto, vendedorId, visible, onClose, onGuardad
 
           {/* Nombre */}
           <View>
-            <Text style={{ color: '#666', fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
+            <Text style={{ color: t.textMuted, fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
               NOMBRE *
             </Text>
             <TextInput
               value={nombre}
               onChangeText={setNombre}
               maxLength={80}
-              placeholderTextColor="#333"
+              placeholderTextColor={t.border}
               style={{
-                backgroundColor: '#141414', borderRadius: 14, borderWidth: 1, borderColor: '#2A2A2A',
-                paddingHorizontal: 16, paddingVertical: 14, color: '#F5F5F5', fontSize: 15,
+                backgroundColor: t.surface, borderRadius: 14, borderWidth: 1, borderColor: t.border,
+                paddingHorizontal: 16, paddingVertical: 14, color: t.text, fontSize: 15,
               }}
             />
           </View>
 
           {/* Descripción */}
           <View>
-            <Text style={{ color: '#666', fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
+            <Text style={{ color: t.textMuted, fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
               DESCRIPCIÓN
             </Text>
             <TextInput
               value={descripcion}
               onChangeText={setDescripcion}
               placeholder="Describe tu producto..."
-              placeholderTextColor="#333"
+              placeholderTextColor={t.border}
               multiline
               numberOfLines={3}
               maxLength={300}
               style={{
-                backgroundColor: '#141414', borderRadius: 14, borderWidth: 1, borderColor: '#2A2A2A',
-                paddingHorizontal: 16, paddingVertical: 14, color: '#F5F5F5', fontSize: 15,
+                backgroundColor: t.surface, borderRadius: 14, borderWidth: 1, borderColor: t.border,
+                paddingHorizontal: 16, paddingVertical: 14, color: t.text, fontSize: 15,
                 textAlignVertical: 'top', minHeight: 80,
               }}
             />
@@ -203,7 +206,7 @@ function EditarProductoModal({ producto, vendedorId, visible, onClose, onGuardad
           {/* Precio + Stock */}
           <View style={{ flexDirection: 'row', gap: 12 }}>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: '#666', fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
+              <Text style={{ color: t.textMuted, fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
                 PRECIO ($) *
               </Text>
               <TextInput
@@ -211,14 +214,14 @@ function EditarProductoModal({ producto, vendedorId, visible, onClose, onGuardad
                 onChangeText={setPrecio}
                 keyboardType="decimal-pad"
                 style={{
-                  backgroundColor: '#141414', borderRadius: 14, borderWidth: 1, borderColor: '#2A2A2A',
+                  backgroundColor: t.surface, borderRadius: 14, borderWidth: 1, borderColor: t.border,
                   paddingHorizontal: 16, paddingVertical: 14,
-                  color: '#FFB830', fontSize: 20, fontWeight: '800',
+                  color: '#059669', fontSize: 20, fontWeight: '800',
                 }}
               />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: '#666', fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
+              <Text style={{ color: t.textMuted, fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
                 STOCK *
               </Text>
               <TextInput
@@ -226,8 +229,8 @@ function EditarProductoModal({ producto, vendedorId, visible, onClose, onGuardad
                 onChangeText={setStock}
                 keyboardType="number-pad"
                 style={{
-                  backgroundColor: '#141414', borderRadius: 14, borderWidth: 1, borderColor: '#2A2A2A',
-                  paddingHorizontal: 16, paddingVertical: 14, color: '#F5F5F5', fontSize: 15,
+                  backgroundColor: t.surface, borderRadius: 14, borderWidth: 1, borderColor: t.border,
+                  paddingHorizontal: 16, paddingVertical: 14, color: t.text, fontSize: 15,
                 }}
               />
             </View>
@@ -235,7 +238,7 @@ function EditarProductoModal({ producto, vendedorId, visible, onClose, onGuardad
 
           {/* Categoría */}
           <View>
-            <Text style={{ color: '#666', fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
+            <Text style={{ color: t.textMuted, fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
               CATEGORÍA *
             </Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
@@ -246,12 +249,12 @@ function EditarProductoModal({ producto, vendedorId, visible, onClose, onGuardad
                   activeOpacity={0.75}
                   style={{
                     paddingHorizontal: 14, paddingVertical: 9, borderRadius: 20, borderWidth: 1,
-                    backgroundColor: categoria === cat ? 'rgba(255,184,48,0.12)' : '#141414',
-                    borderColor: categoria === cat ? 'rgba(255,184,48,0.45)' : '#2A2A2A',
+                    backgroundColor: categoria === cat ? 'rgba(5,150,105,0.12)' : t.surface,
+                    borderColor: categoria === cat ? 'rgba(5,150,105,0.45)' : t.border,
                   }}
                 >
                   <Text style={{
-                    color: categoria === cat ? '#FFB830' : '#555', fontSize: 13,
+                    color: categoria === cat ? '#059669' : t.textMuted, fontSize: 13,
                     fontWeight: categoria === cat ? '700' : '500',
                   }}>
                     {cat}
@@ -264,7 +267,7 @@ function EditarProductoModal({ producto, vendedorId, visible, onClose, onGuardad
           {/* Guardar */}
           <TouchableOpacity onPress={handleGuardar} disabled={guardando} activeOpacity={0.85} style={{ marginTop: 4 }}>
             <LinearGradient
-              colors={guardando ? ['#2A2A2A', '#2A2A2A'] : ['#FFB830', '#FF6B2B']}
+              colors={guardando ? ['#2A2A2A', '#2A2A2A'] : ['#10B981', '#059669']}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={{
                 borderRadius: 16, paddingVertical: 16,
@@ -301,15 +304,16 @@ function MiProductoCard({
   onEditar: () => void;
   onEliminar: () => void;
 }) {
+  const t = useTheme();
   const stockBajo = (producto.stock ?? 0) <= 1;
   return (
     <View style={{
-      backgroundColor: '#141414', borderRadius: 18,
-      borderWidth: 1, borderColor: '#2E2E2E',
+      backgroundColor: t.surface, borderRadius: 18,
+      borderWidth: 1, borderColor: t.border,
       overflow: 'hidden', marginBottom: 10,
     }}>
       <LinearGradient
-        colors={['#FFD060', '#FFB830', 'transparent']}
+        colors={['#6EE7B7', '#34D399', 'transparent']}
         start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
         style={{ height: 2 }}
       />
@@ -324,22 +328,22 @@ function MiProductoCard({
         ) : (
           <View style={{
             width: 48, height: 48, borderRadius: 12,
-            backgroundColor: '#1E1E1E', alignItems: 'center', justifyContent: 'center',
+            backgroundColor: t.surface2, alignItems: 'center', justifyContent: 'center',
           }}>
-            <Ionicons name="cube-outline" size={22} color="#FFB830" />
+            <Ionicons name="cube-outline" size={22} color="#059669" />
           </View>
         )}
 
         {/* Info */}
         <View style={{ flex: 1 }}>
-          <Text style={{ color: '#F5F5F5', fontSize: 14, fontWeight: '700' }} numberOfLines={1}>
+          <Text style={{ color: t.text, fontSize: 14, fontWeight: '700' }} numberOfLines={1}>
             {producto.nombre}
           </Text>
-          <Text style={{ color: '#555', fontSize: 12, marginTop: 2 }}>
+          <Text style={{ color: t.textMuted, fontSize: 12, marginTop: 2 }}>
             {producto.categoria ?? 'Sin categoría'}
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 }}>
-            <Text style={{ color: '#FFB830', fontSize: 15, fontWeight: '800' }}>
+            <Text style={{ color: '#059669', fontSize: 15, fontWeight: '800' }}>
               {formatPrecio(Number(producto.precio))}
             </Text>
             <View style={{
@@ -362,12 +366,12 @@ function MiProductoCard({
             activeOpacity={0.75}
             style={{
               width: 32, height: 32, borderRadius: 10,
-              backgroundColor: 'rgba(255,184,48,0.12)',
-              borderWidth: 1, borderColor: 'rgba(255,184,48,0.3)',
+              backgroundColor: 'rgba(5,150,105,0.12)',
+              borderWidth: 1, borderColor: 'rgba(5,150,105,0.3)',
               alignItems: 'center', justifyContent: 'center',
             }}
           >
-            <Ionicons name="pencil-outline" size={15} color="#FFB830" />
+            <Ionicons name="pencil-outline" size={15} color="#059669" />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={onEliminar}
@@ -391,6 +395,8 @@ function MiProductoCard({
 
 export default function InicioVendedor() {
   const { usuario } = useAuthStore();
+  const t = useTheme();
+  const isDark = useThemeStore((s) => s.isDark);
   const [productos, setProductos] = useState<ProductoConVendedor[]>([]);
   const [cargando, setCargando] = useState(true);
   const [refrescando, setRefrescando] = useState(false);
@@ -443,20 +449,20 @@ export default function InicioVendedor() {
   return (
     <>
       <ScrollView
-        style={{ flex: 1, backgroundColor: '#0A0A0A' }}
+        style={{ flex: 1, backgroundColor: t.bg }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refrescando}
             onRefresh={() => cargar(true)}
-            tintColor="#FFB830"
-            colors={['#FFB830']}
+            tintColor="#059669"
+            colors={['#059669']}
           />
         }
       >
         {/* Glow ambiental */}
         <LinearGradient
-          colors={['rgba(255,184,48,0.08)', 'transparent']}
+          colors={['rgba(5,150,105,0.08)', 'transparent']}
           start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }}
           style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 220 }}
           pointerEvents="none"
@@ -464,21 +470,21 @@ export default function InicioVendedor() {
 
         {/* Header */}
         <LinearGradient
-          colors={['#1C0A00', '#0A0A0A']}
+          colors={t.headerBg}
           start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }}
           style={{ paddingTop: 56, paddingBottom: 24, paddingHorizontal: 20 }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <View>
-              <Text style={{ color: '#555', fontSize: 11, fontWeight: '600', letterSpacing: 1.5, textTransform: 'uppercase' }}>
+              <Text style={{ color: t.textMuted, fontSize: 11, fontWeight: '600', letterSpacing: 1.5, textTransform: 'uppercase' }}>
                 Mi tienda
               </Text>
-              <Text style={{ color: '#F5F5F5', fontSize: 26, fontWeight: '800', letterSpacing: -0.3, marginTop: 2 }}>
+              <Text style={{ color: t.text, fontSize: 26, fontWeight: '800', letterSpacing: -0.3, marginTop: 2 }}>
                 Hola, {nombre}
               </Text>
             </View>
             <LinearGradient
-              colors={['#FFD060', '#FFB830', '#E09020']}
+              colors={['#6EE7B7', '#34D399', '#059669']}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
               style={{ width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center' }}
             >
@@ -489,7 +495,7 @@ export default function InicioVendedor() {
 
         {/* Fade header→contenido */}
         <LinearGradient
-          colors={['rgba(28,10,0,0.7)', 'transparent']}
+          colors={isDark ? ['rgba(14,14,14,0.6)', 'transparent'] : ['rgba(0,0,0,0.04)', 'transparent']}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
           style={{ height: 48 }}
@@ -500,24 +506,24 @@ export default function InicioVendedor() {
           {/* Stats */}
           <View style={{ flexDirection: 'row', gap: 10, marginBottom: 24 }}>
             {[
-              { label: 'Productos', value: String(totalProductos), icon: 'cube-outline' as keyof typeof Ionicons.glyphMap, color: '#FFB830' },
+              { label: 'Productos', value: String(totalProductos), icon: 'cube-outline' as keyof typeof Ionicons.glyphMap, color: '#059669' },
               { label: 'Sin stock', value: String(sinStock), icon: 'alert-circle-outline' as keyof typeof Ionicons.glyphMap, color: '#FF4D6D' },
               { label: 'Valor total', value: formatPrecio(valorInventario), icon: 'cash-outline' as keyof typeof Ionicons.glyphMap, color: '#4DFFA6' },
             ].map((stat) => (
               <View key={stat.label} style={{
-                flex: 1, backgroundColor: '#141414', borderRadius: 16,
-                borderWidth: 1, borderColor: '#2E2E2E', padding: 12, alignItems: 'center', gap: 4,
+                flex: 1, backgroundColor: t.surface, borderRadius: 16,
+                borderWidth: 1, borderColor: t.border, padding: 12, alignItems: 'center', gap: 4,
               }}>
                 <Ionicons name={stat.icon} size={16} color={stat.color} />
-                <Text style={{ color: '#F5F5F5', fontSize: 15, fontWeight: '800' }}>{stat.value}</Text>
-                <Text style={{ color: '#555', fontSize: 10 }}>{stat.label}</Text>
+                <Text style={{ color: t.text, fontSize: 15, fontWeight: '800' }}>{stat.value}</Text>
+                <Text style={{ color: t.textMuted, fontSize: 10 }}>{stat.label}</Text>
               </View>
             ))}
           </View>
 
           {/* Mis productos */}
           <Text style={{
-            color: '#555', fontSize: 11, fontWeight: '600',
+            color: t.textMuted, fontSize: 11, fontWeight: '600',
             letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12,
           }}>
             Mis publicaciones
@@ -525,17 +531,17 @@ export default function InicioVendedor() {
 
           {cargando && (
             <View style={{ paddingVertical: 40, alignItems: 'center' }}>
-              <ActivityIndicator color="#FFB830" size="large" />
+              <ActivityIndicator color="#059669" size="large" />
             </View>
           )}
 
           {!cargando && productos.length === 0 && (
             <View style={{ paddingVertical: 48, alignItems: 'center' }}>
-              <Ionicons name="cube-outline" size={48} color="#2E2E2E" />
-              <Text style={{ color: '#444', fontSize: 15, fontWeight: '600', marginTop: 16 }}>
+              <Ionicons name="cube-outline" size={48} color={t.border} />
+              <Text style={{ color: t.border, fontSize: 15, fontWeight: '600', marginTop: 16 }}>
                 Aún no tienes productos
               </Text>
-              <Text style={{ color: '#333', fontSize: 13, marginTop: 6 }}>
+              <Text style={{ color: t.border, fontSize: 13, marginTop: 6 }}>
                 Publica tu primer artículo en la pestaña Publicar
               </Text>
             </View>

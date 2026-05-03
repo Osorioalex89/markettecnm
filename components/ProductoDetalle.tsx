@@ -10,6 +10,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '../hooks/useTheme';
 import type { ProductoConVendedor } from '../services/productosService';
 
 const CATEGORIA_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
@@ -23,13 +24,13 @@ const CATEGORIA_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
 };
 
 const CATEGORIA_COLORS: Record<string, [string, string]> = {
-  'Electrónica': ['#FF8C55', '#FF6B2B'],
-  'Útiles':      ['#FFD060', '#FFB830'],
+  'Electrónica': ['#34D399', '#10B981'],
+  'Útiles':      ['#6EE7B7', '#34D399'],
   'Libros':      ['#60B8FF', '#3A8FD6'],
   'Accesorios':  ['#B860FF', '#8C3AD6'],
   'Ropa':        ['#FF60A8', '#D63A7A'],
-  'Alimentos':   ['#60FF9A', '#3AD66A'],
-  'Servicios':   ['#FF9A60', '#D66A3A'],
+  'Alimentos':   ['#A7F3D0', '#6EE7B7'],
+  'Servicios':   ['#34D399', '#059669'],
 };
 
 function formatPrecio(precio: number): string {
@@ -43,6 +44,7 @@ type Props = {
   onAgregarCarrito?: () => void;
   onContactar?: () => void;
   contactando?: boolean;
+  onVerVendedor?: () => void;
 };
 
 export default function ProductoDetalle({
@@ -52,13 +54,15 @@ export default function ProductoDetalle({
   onAgregarCarrito,
   onContactar,
   contactando,
+  onVerVendedor,
 }: Props) {
   const insets = useSafeAreaInsets();
+  const t = useTheme();
 
   if (!producto) return null;
 
   const icon = CATEGORIA_ICON[producto.categoria ?? ''] ?? 'pricetag-outline';
-  const colors = CATEGORIA_COLORS[producto.categoria ?? ''] ?? ['#FF8C55', '#FF6B2B'];
+  const colors = CATEGORIA_COLORS[producto.categoria ?? ''] ?? ['#34D399', '#10B981'];
   const stockBajo = (producto.stock ?? 0) <= 1;
 
   return (
@@ -79,7 +83,7 @@ export default function ProductoDetalle({
       {/* Sheet */}
       <View
         style={{
-          backgroundColor: '#111',
+          backgroundColor: t.surface,
           borderTopLeftRadius: 28,
           borderTopRightRadius: 28,
           maxHeight: '88%',
@@ -88,20 +92,20 @@ export default function ProductoDetalle({
       >
         {/* Handle */}
         <View style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 4 }}>
-          <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: '#2E2E2E' }} />
+          <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: t.border }} />
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
           {/* Imagen o gradiente fallback */}
           {producto.imagen_url ? (
-            <View style={{ width: '100%', height: 280, backgroundColor: '#1A1A1A' }}>
+            <View style={{ width: '100%', height: 280, backgroundColor: t.surface2 }}>
               <Image
                 source={{ uri: producto.imagen_url }}
                 style={{ width: '100%', height: '100%' }}
                 resizeMode="cover"
               />
               <LinearGradient
-                colors={['transparent', 'rgba(17,17,17,0.85)']}
+                colors={['transparent', t.surface + 'D9']}
                 style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 100 }}
                 pointerEvents="none"
               />
@@ -124,15 +128,15 @@ export default function ProductoDetalle({
               {producto.categoria && (
                 <View
                   style={{
-                    backgroundColor: '#1E1E1E',
+                    backgroundColor: t.surface2,
                     borderRadius: 20,
                     borderWidth: 1,
-                    borderColor: '#2A2A2A',
+                    borderColor: t.border,
                     paddingHorizontal: 10,
                     paddingVertical: 4,
                   }}
                 >
-                  <Text style={{ color: '#666', fontSize: 11, fontWeight: '600' }}>
+                  <Text style={{ color: t.textMuted, fontSize: 11, fontWeight: '600' }}>
                     {producto.categoria}
                   </Text>
                 </View>
@@ -162,7 +166,7 @@ export default function ProductoDetalle({
             {/* Nombre */}
             <Text
               style={{
-                color: '#F5F5F5',
+                color: t.text,
                 fontSize: 22,
                 fontWeight: '800',
                 letterSpacing: -0.3,
@@ -175,7 +179,7 @@ export default function ProductoDetalle({
             {/* Precio */}
             <Text
               style={{
-                color: '#FFB830',
+                color: '#10B981',
                 fontSize: 30,
                 fontWeight: '800',
                 marginTop: 8,
@@ -186,21 +190,24 @@ export default function ProductoDetalle({
             </Text>
 
             {/* Vendedor */}
-            <View
+            <TouchableOpacity
+              onPress={onVerVendedor}
+              disabled={!onVerVendedor}
+              activeOpacity={onVerVendedor ? 0.75 : 1}
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: 8,
                 marginTop: 14,
-                backgroundColor: '#1A1A1A',
+                backgroundColor: t.surface2,
                 borderRadius: 12,
                 borderWidth: 1,
-                borderColor: '#2A2A2A',
+                borderColor: onVerVendedor ? 'rgba(16,185,129,0.3)' : t.border,
                 padding: 12,
               }}
             >
               <LinearGradient
-                colors={['#FF8C55', '#FF6B2B']}
+                colors={['#34D399', '#10B981']}
                 style={{
                   width: 34,
                   height: 34,
@@ -214,35 +221,51 @@ export default function ProductoDetalle({
                 </Text>
               </LinearGradient>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: '#F5F5F5', fontSize: 13, fontWeight: '700' }}>
+                <Text style={{ color: t.text, fontSize: 13, fontWeight: '700' }}>
                   {producto.perfiles?.nombre ?? 'Vendedor'}
                 </Text>
                 {producto.perfiles?.matricula && (
-                  <Text style={{ color: '#555', fontSize: 11, marginTop: 1 }}>
+                  <Text style={{ color: t.textMuted, fontSize: 11, marginTop: 1 }}>
                     {producto.perfiles.matricula}
                   </Text>
                 )}
               </View>
-              <View
-                style={{
-                  backgroundColor: 'rgba(255,184,48,0.1)',
-                  borderRadius: 8,
-                  borderWidth: 1,
-                  borderColor: 'rgba(255,184,48,0.25)',
-                  paddingHorizontal: 8,
-                  paddingVertical: 3,
-                }}
-              >
-                <Text style={{ color: '#FFB830', fontSize: 10, fontWeight: '700' }}>Vendedor</Text>
-              </View>
-            </View>
+              {onVerVendedor ? (
+                <LinearGradient
+                  colors={['rgba(16,185,129,0.15)', 'rgba(16,185,129,0.08)']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{
+                    borderRadius: 8, borderWidth: 1, borderColor: 'rgba(16,185,129,0.3)',
+                    paddingHorizontal: 8, paddingVertical: 3,
+                    flexDirection: 'row', alignItems: 'center', gap: 3,
+                  }}
+                >
+                  <Text style={{ color: '#10B981', fontSize: 10, fontWeight: '700' }}>Ver perfil</Text>
+                  <Ionicons name="chevron-forward" size={10} color="#10B981" />
+                </LinearGradient>
+              ) : (
+                <View
+                  style={{
+                    backgroundColor: 'rgba(16,185,129,0.1)',
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    borderColor: 'rgba(16,185,129,0.25)',
+                    paddingHorizontal: 8,
+                    paddingVertical: 3,
+                  }}
+                >
+                  <Text style={{ color: '#10B981', fontSize: 10, fontWeight: '700' }}>Vendedor</Text>
+                </View>
+              )}
+            </TouchableOpacity>
 
             {/* Descripción */}
             {producto.descripcion ? (
               <View style={{ marginTop: 18 }}>
                 <Text
                   style={{
-                    color: '#555',
+                    color: t.textMuted,
                     fontSize: 11,
                     fontWeight: '600',
                     letterSpacing: 1.5,
@@ -252,13 +275,13 @@ export default function ProductoDetalle({
                 >
                   Descripción
                 </Text>
-                <Text style={{ color: '#AAA', fontSize: 14, lineHeight: 22 }}>
+                <Text style={{ color: t.textSecondary, fontSize: 14, lineHeight: 22 }}>
                   {producto.descripcion}
                 </Text>
               </View>
             ) : (
               <View style={{ marginTop: 18 }}>
-                <Text style={{ color: '#333', fontSize: 13, fontStyle: 'italic' }}>
+                <Text style={{ color: t.border, fontSize: 13, fontStyle: 'italic' }}>
                   Sin descripción
                 </Text>
               </View>
@@ -278,8 +301,8 @@ export default function ProductoDetalle({
             paddingTop: 12,
             paddingBottom: insets.bottom + 16,
             borderTopWidth: 1,
-            borderTopColor: '#1E1E1E',
-            backgroundColor: '#111',
+            borderTopColor: t.border,
+            backgroundColor: t.surface,
           }}
         >
           {onContactar && (
@@ -293,19 +316,19 @@ export default function ProductoDetalle({
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 8,
-                backgroundColor: 'rgba(255,184,48,0.12)',
+                backgroundColor: 'rgba(16,185,129,0.12)',
                 borderRadius: 16,
                 borderWidth: 1,
-                borderColor: 'rgba(255,184,48,0.3)',
+                borderColor: 'rgba(16,185,129,0.3)',
                 paddingVertical: 14,
               }}
             >
               {contactando ? (
-                <ActivityIndicator size={16} color="#FFB830" />
+                <ActivityIndicator size={16} color="#10B981" />
               ) : (
-                <Ionicons name="chatbubble-ellipses-outline" size={18} color="#FFB830" />
+                <Ionicons name="chatbubble-ellipses-outline" size={18} color="#10B981" />
               )}
-              <Text style={{ color: '#FFB830', fontWeight: '700', fontSize: 14 }}>
+              <Text style={{ color: '#10B981', fontWeight: '700', fontSize: 14 }}>
                 Contactar
               </Text>
             </TouchableOpacity>
@@ -318,7 +341,7 @@ export default function ProductoDetalle({
               style={{ flex: onContactar ? 1.4 : 1, borderRadius: 16, overflow: 'hidden' }}
             >
               <LinearGradient
-                colors={['#FF8C55', '#FF6B2B']}
+                colors={['#34D399', '#10B981']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={{

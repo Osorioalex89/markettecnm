@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+﻿import { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuthStore } from '../store/authStore';
+import { useTheme } from '../hooks/useTheme';
 import {
   fetchConversaciones,
   eliminarConversacion,
@@ -32,6 +33,7 @@ function tiempoRelativo(iso: string | null): string {
 
 export default function ListaChats() {
   const { usuario } = useAuthStore();
+  const t = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const [conversaciones, setConversaciones] = useState<ConversacionConDetalle[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -83,23 +85,23 @@ export default function ListaChats() {
 
   if (cargando) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0A0A0A', alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator color="#FF6B2B" size="large" />
+      <View style={{ flex: 1, backgroundColor: t.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color="#10B981" size="large" />
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
+    <View style={{ flex: 1, backgroundColor: t.bg }}>
       {/* Header */}
       <LinearGradient
-        colors={['#1C0A00', '#0A0A0A']}
+        colors={t.headerBg}
         style={{ paddingTop: 56, paddingBottom: 20, paddingHorizontal: 24 }}
       >
-        <Text style={{ color: '#F5F5F5', fontSize: 28, fontWeight: '800', letterSpacing: -0.5 }}>
+        <Text style={{ color: t.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.5 }}>
           Mensajes
         </Text>
-        <Text style={{ color: '#555', fontSize: 13, marginTop: 4 }}>
+        <Text style={{ color: t.textMuted, fontSize: 13, marginTop: 4 }}>
           {conversaciones.length > 0
             ? `${conversaciones.length} conversación${conversaciones.length !== 1 ? 'es' : ''}`
             : 'Sin conversaciones aún'}
@@ -109,7 +111,7 @@ export default function ListaChats() {
       {conversaciones.length === 0 ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 40 }}>
           <LinearGradient
-            colors={['#FF8C55', '#FF6B2B', '#E05520']}
+            colors={['#34D399', '#10B981', '#059669']}
             style={{
               width: 72,
               height: 72,
@@ -122,10 +124,10 @@ export default function ListaChats() {
           >
             <Ionicons name="chatbubbles" size={32} color="#fff" />
           </LinearGradient>
-          <Text style={{ color: '#F5F5F5', fontSize: 18, fontWeight: '700', textAlign: 'center' }}>
+          <Text style={{ color: t.text, fontSize: 18, fontWeight: '700', textAlign: 'center' }}>
             Sin mensajes
           </Text>
-          <Text style={{ color: '#555', fontSize: 13, textAlign: 'center', marginTop: 8, lineHeight: 20 }}>
+          <Text style={{ color: t.textMuted, fontSize: 13, textAlign: 'center', marginTop: 8, lineHeight: 20 }}>
             Tus conversaciones con vendedores aparecerán aquí
           </Text>
         </View>
@@ -137,13 +139,13 @@ export default function ListaChats() {
             <RefreshControl
               refreshing={refrescando}
               onRefresh={onRefresh}
-              tintColor="#FF6B2B"
-              colors={['#FF6B2B']}
+              tintColor="#10B981"
+              colors={['#10B981']}
             />
           }
           contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24 }}
           ItemSeparatorComponent={() => (
-            <View style={{ height: 1, backgroundColor: '#141414', marginHorizontal: 4 }} />
+            <View style={{ height: 1, backgroundColor: t.surface, marginHorizontal: 4 }} />
           )}
           renderItem={({ item }) => (
             <TouchableOpacity
@@ -168,7 +170,7 @@ export default function ListaChats() {
             >
               {/* Avatar */}
               <LinearGradient
-                colors={['#FF8C55', '#FF6B2B']}
+                colors={['#34D399', '#10B981']}
                 style={{
                   width: 48,
                   height: 48,
@@ -188,7 +190,7 @@ export default function ListaChats() {
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                   <Text
                     style={{
-                      color: item.no_leidos > 0 ? '#F5F5F5' : '#BDBDBD',
+                      color: item.no_leidos > 0 ? t.text : t.textSecondary,
                       fontSize: 15,
                       fontWeight: item.no_leidos > 0 ? '700' : '500',
                     }}
@@ -196,14 +198,14 @@ export default function ListaChats() {
                   >
                     {item.otro.nombre}
                   </Text>
-                  <Text style={{ color: '#444', fontSize: 11 }}>
+                  <Text style={{ color: t.textMuted, fontSize: 11 }}>
                     {tiempoRelativo(item.ultimo_en)}
                   </Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3, gap: 6 }}>
                   <Text
                     style={{
-                      color: item.no_leidos > 0 ? '#999' : '#444',
+                      color: item.no_leidos > 0 ? t.textSecondary : t.textMuted,
                       fontSize: 13,
                       flex: 1,
                     }}
@@ -214,7 +216,7 @@ export default function ListaChats() {
                   {item.no_leidos > 0 && (
                     <View
                       style={{
-                        backgroundColor: '#FF6B2B',
+                        backgroundColor: '#10B981',
                         borderRadius: 10,
                         minWidth: 20,
                         height: 20,
@@ -231,7 +233,7 @@ export default function ListaChats() {
                 </View>
               </View>
 
-              <Ionicons name="chevron-forward" size={16} color="#333" />
+              <Ionicons name="chevron-forward" size={16} color={t.textMuted} />
             </TouchableOpacity>
           )}
         />
