@@ -12,6 +12,7 @@ import InicioVendedor from './InicioVendedor';
 import PublicarVendedor from './PublicarVendedor';
 import VentasVendedor from './VentasVendedor';
 import ListaChats from '../../components/ListaChats';
+import ReseñasVendedor from './ReseñasVendedor';
 
 const Tab = createBottomTabNavigator();
 
@@ -28,6 +29,7 @@ const TABS: TabConfig[] = [
   { name: 'Inicio', label: 'Inicio', icon: 'home-outline', iconActive: 'home', subtitulo: 'Tu feed y actividad reciente', paso: 'Paso 5' },
   { name: 'Publicar', label: 'Publicar', icon: 'add-circle-outline', iconActive: 'add-circle', subtitulo: 'Sube un nuevo producto', paso: 'Paso 6' },
   { name: 'Ventas', label: 'Mis ventas', icon: 'cube-outline', iconActive: 'cube', subtitulo: 'Historial y estado de pedidos', paso: 'Paso 6' },
+  { name: 'Reseñas', label: 'Reseñas', icon: 'star-outline', iconActive: 'star', subtitulo: 'Opiniones de tus compradores', paso: 'Paso 8' },
   { name: 'Mensajes', label: 'Chat', icon: 'chatbubbles-outline', iconActive: 'chatbubbles', subtitulo: 'Conversa con tus compradores', paso: 'Paso 7' },
   { name: 'Perfil', label: 'Perfil', icon: 'person-outline', iconActive: 'person', subtitulo: 'Tu tienda y ajustes', paso: 'Paso 5' },
 ];
@@ -141,19 +143,19 @@ export default function TabsVendedor() {
           right: 44,
           borderRadius: 28,
           height: 72,
-          backgroundColor: isDark ? 'rgba(255,255,255,0.88)' : 'rgba(5,150,105,0.92)',
+          backgroundColor: isDark ? 'rgba(20,20,20,0.94)' : 'rgba(5,150,105,0.92)',
           borderWidth: 1,
           borderTopWidth: 1,
-          borderColor: isDark ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.20)',
-          shadowColor: isDark ? '#000' : '#059669',
+          borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.20)',
+          shadowColor: '#000',
           shadowOffset: { width: 0, height: 6 },
-          shadowOpacity: isDark ? 0.3 : 0.25,
+          shadowOpacity: isDark ? 0.5 : 0.25,
           shadowRadius: 20,
           elevation: 20,
         },
         tabBarItemStyle: { paddingTop: 8, paddingBottom: 4 },
-        tabBarActiveTintColor: isDark ? '#059669' : '#FFFFFF',
-        tabBarInactiveTintColor: isDark ? '#9CA3AF' : 'rgba(255,255,255,0.55)',
+        tabBarActiveTintColor: isDark ? '#10B981' : '#FFFFFF',
+        tabBarInactiveTintColor: isDark ? '#666' : 'rgba(255,255,255,0.75)',
         tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2 },
         tabBarIcon: ({ focused, color }) => {
           const tab = TABS.find((t) => t.name === route.name)!;
@@ -165,7 +167,7 @@ export default function TabsVendedor() {
               justifyContent: 'center',
               borderRadius: 12,
               backgroundColor: focused
-                ? (isDark ? 'rgba(5,150,105,0.12)' : 'rgba(255,255,255,0.18)')
+                ? (isDark ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.18)')
                 : 'transparent',
             }}>
               <Ionicons name={focused ? tab.iconActive : tab.icon} size={22} color={color} />
@@ -181,13 +183,14 @@ export default function TabsVendedor() {
           options={{
             tabBarLabel: tab.label,
             tabBarBadge: tab.name === 'Mensajes' && noLeidos > 0 ? noLeidos : undefined,
-            tabBarBadgeStyle: { backgroundColor: isDark ? '#059669' : '#FFFFFF', color: isDark ? '#FFFFFF' : '#059669', fontSize: 10, minWidth: 18, height: 18 },
+            tabBarBadgeStyle: { backgroundColor: isDark ? '#10B981' : '#FFFFFF', color: isDark ? '#0A0A0A' : '#059669', fontSize: 10, minWidth: 18, height: 18 },
           }}
         >
           {() =>
             tab.name === 'Inicio'    ? <InicioVendedor /> :
             tab.name === 'Publicar'  ? <PublicarVendedor /> :
             tab.name === 'Ventas'    ? <VentasVendedor /> :
+            tab.name === 'Reseñas'   ? <ReseñasVendedor /> :
             tab.name === 'Mensajes'  ? <ListaChats /> :
             <PlaceholderScreen />
           }

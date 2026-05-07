@@ -80,6 +80,30 @@ export async function fetchCalificacionesDadas(compradorId: string): Promise<Set
   return new Set((data ?? []).map((r) => `${r.orden_id}:${r.producto_id}`));
 }
 
+// --- Vendedor ---
+
+export type CalificacionRecibida = {
+  id: string;
+  comprador_id: string;
+  producto_id: string;
+  orden_id: string;
+  puntuacion: number;
+  comentario: string | null;
+  creado_en: string;
+  comprador: { nombre: string } | null;
+  producto: { nombre: string } | null;
+};
+
+export async function fetchMisCalificaciones(vendedorId: string): Promise<CalificacionRecibida[]> {
+  const { data, error } = await supabase
+    .from('calificaciones')
+    .select('id, comprador_id, producto_id, orden_id, puntuacion, comentario, creado_en, comprador:perfiles!comprador_id(nombre), producto:productos(nombre)')
+    .eq('vendedor_id', vendedorId)
+    .order('creado_en', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as CalificacionRecibida[];
+}
+
 // --- Admin ---
 
 export type CalificacionAdmin = {
