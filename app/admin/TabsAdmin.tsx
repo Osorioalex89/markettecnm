@@ -131,19 +131,19 @@ export default function TabsAdmin() {
           right: 44,
           borderRadius: 28,
           height: 72,
-          backgroundColor: isDark ? 'rgba(255,255,255,0.88)' : 'rgba(5,150,105,0.92)',
+          backgroundColor: isDark ? 'rgba(20,20,20,0.94)' : 'rgba(5,150,105,0.92)',
           borderWidth: 1,
           borderTopWidth: 1,
-          borderColor: isDark ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.20)',
-          shadowColor: isDark ? '#000' : '#059669',
+          borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.20)',
+          shadowColor: '#000',
           shadowOffset: { width: 0, height: 6 },
-          shadowOpacity: isDark ? 0.3 : 0.25,
+          shadowOpacity: isDark ? 0.5 : 0.25,
           shadowRadius: 20,
           elevation: 20,
         },
         tabBarItemStyle: { paddingTop: 8, paddingBottom: 4 },
-        tabBarActiveTintColor: isDark ? '#059669' : '#FFFFFF',
-        tabBarInactiveTintColor: isDark ? '#9CA3AF' : 'rgba(255,255,255,0.55)',
+        tabBarActiveTintColor: isDark ? '#10B981' : '#FFFFFF',
+        tabBarInactiveTintColor: isDark ? '#666' : 'rgba(255,255,255,0.75)',
         tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2 },
         tabBarIcon: ({ focused, color }) => {
           const tab = TABS.find((t) => t.name === route.name)!;
@@ -156,7 +156,7 @@ export default function TabsAdmin() {
               justifyContent: 'center',
               borderRadius: 12,
               backgroundColor: focused
-                ? (isDark ? 'rgba(5,150,105,0.12)' : 'rgba(255,255,255,0.18)')
+                ? (isDark ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.18)')
                 : 'transparent',
             }}>
               <Ionicons name={focused ? tab.iconActive : tab.icon} size={22} color={color} />
