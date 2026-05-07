@@ -79,3 +79,33 @@ export async function fetchCalificacionesDadas(compradorId: string): Promise<Set
   // key: `${orden_id}:${producto_id}` para detectar si ya calificó ese item de esa orden
   return new Set((data ?? []).map((r) => `${r.orden_id}:${r.producto_id}`));
 }
+
+// --- Admin ---
+
+export type CalificacionAdmin = {
+  id: string;
+  comprador_id: string;
+  vendedor_id: string;
+  producto_id: string;
+  orden_id: string;
+  puntuacion: number;
+  comentario: string | null;
+  creado_en: string;
+  comprador: { nombre: string } | null;
+  vendedor: { nombre: string } | null;
+  producto: { nombre: string } | null;
+};
+
+export async function fetchTodasCalificaciones(): Promise<CalificacionAdmin[]> {
+  const { data, error } = await supabase
+    .from('calificaciones')
+    .select('*, comprador:perfiles!comprador_id(nombre), vendedor:perfiles!vendedor_id(nombre), producto:productos(nombre)')
+    .order('creado_en', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as CalificacionAdmin[];
+}
+
+export async function eliminarCalificacionAdmin(id: string): Promise<void> {
+  const { error } = await supabase.from('calificaciones').delete().eq('id', id);
+  if (error) throw error;
+}

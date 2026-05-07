@@ -1,11 +1,12 @@
 ﻿import { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView, Image,
-  Alert, ActivityIndicator, KeyboardAvoidingView, Platform,
+  Alert, ActivityIndicator, KeyboardAvoidingView, Platform, Modal,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../hooks/useTheme';
 import { useThemeStore } from '../../store/themeStore';
@@ -13,16 +14,32 @@ import { publicarProducto } from '../../services/productosService';
 
 const CATEGORIAS = ['Electrónica', 'Útiles', 'Libros', 'Accesorios', 'Ropa', 'Alimentos', 'Servicios'];
 
+const DIAS_SEMANA = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function toISODate(d: Date): string {
+  return d.toISOString().split('T')[0];
+}
+
+function formatFechaLimite(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${d} ${MESES[m - 1]} ${y}`;
+}
+
 export default function PublicarVendedor() {
   const { usuario } = useAuthStore();
   const t = useTheme();
   const isDark = useThemeStore((s) => s.isDark);
+  const insets = useSafeAreaInsets();
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [precio, setPrecio] = useState('');
   const [stock, setStock] = useState('');
   const [categoria, setCategoria] = useState('');
   const [imagenUri, setImagenUri] = useState<string | null>(null);
+  const [fechaLimite, setFechaLimite] = useState<string | null>(null);
+  const [mostrarCalendario, setMostrarCalendario] = useState(false);
+  const [mesVista, setMesVista] = useState(() => { const d = new Date(); d.setDate(1); return d; });
   const [cargando, setCargando] = useState(false);
 
   async function seleccionarImagen() {
@@ -47,6 +64,95 @@ export default function PublicarVendedor() {
     setStock('');
     setCategoria('');
     setImagenUri(null);
+    setFechaLimite(null);
+  }
+
+  function navegarMes(dir: 1 | -1) {
+    setMesVista((prev) => {
+      const d = new Date(prev);
+      d.setMonth(d.getMonth() + dir);
+      return d;
+    });
+  }
+
+  function renderCalendario() {
+    const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+    const year = mesVista.getFullYear();
+    const month = mesVista.getMonth();
+    const totalDias = new Date(year, month + 1, 0).getDate();
+    const primerDia = new Date(year, month, 1).getDay();
+    const celdas: (number | null)[] = [...Array(primerDia).fill(null), ...Array.from({ length: totalDias }, (_, i) => i + 1)];
+    while (celdas.length % 7 !== 0) celdas.push(null);
+
+    return (
+      <Modal visible={mostrarCalendario} transparent animationType="slide" onRequestClose={() => setMostrarCalendario(false)}>
+        <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }} activeOpacity={1} onPress={() => setMostrarCalendario(false)} />
+        <View style={{ backgroundColor: t.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: insets.bottom + 20 }}>
+          {/* Nav mes */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <TouchableOpacity onPress={() => navegarMes(-1)} style={{ padding: 8 }}>
+              <Ionicons name="chevron-back" size={20} color={t.text} />
+            </TouchableOpacity>
+            <Text style={{ color: t.text, fontSize: 15, fontWeight: '700' }}>
+              {MESES[month]} {year}
+            </Text>
+            <TouchableOpacity onPress={() => navegarMes(1)} style={{ padding: 8 }}>
+              <Ionicons name="chevron-forward" size={20} color={t.text} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Cabecera días */}
+          <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+            {DIAS_SEMANA.map((d) => (
+              <Text key={d} style={{ flex: 1, textAlign: 'center', color: t.textMuted, fontSize: 11, fontWeight: '600' }}>{d}</Text>
+            ))}
+          </View>
+
+          {/* Grid */}
+          {Array.from({ length: celdas.length / 7 }, (_, fila) => (
+            <View key={fila} style={{ flexDirection: 'row', marginBottom: 4 }}>
+              {celdas.slice(fila * 7, fila * 7 + 7).map((dia, col) => {
+                if (!dia) return <View key={col} style={{ flex: 1 }} />;
+                const fecha = new Date(year, month, dia);
+                const isPasado = fecha < hoy;
+                const isoFecha = toISODate(fecha);
+                const isSeleccionado = fechaLimite === isoFecha;
+                const isHoy = toISODate(fecha) === toISODate(hoy);
+                return (
+                  <TouchableOpacity
+                    key={col}
+                    disabled={isPasado}
+                    onPress={() => { setFechaLimite(isoFecha); setMostrarCalendario(false); }}
+                    style={{
+                      flex: 1, aspectRatio: 1, alignItems: 'center', justifyContent: 'center',
+                      borderRadius: 10, margin: 1,
+                      backgroundColor: isSeleccionado ? '#059669' : 'transparent',
+                      borderWidth: isHoy && !isSeleccionado ? 1 : 0,
+                      borderColor: '#10B981',
+                    }}
+                  >
+                    <Text style={{
+                      fontSize: 13, fontWeight: isSeleccionado ? '700' : '400',
+                      color: isSeleccionado ? '#fff' : isPasado ? t.border : t.text,
+                    }}>
+                      {dia}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          ))}
+
+          {/* Quitar fecha */}
+          {fechaLimite && (
+            <TouchableOpacity onPress={() => { setFechaLimite(null); setMostrarCalendario(false); }}
+              style={{ marginTop: 12, alignItems: 'center', paddingVertical: 10 }}>
+              <Text style={{ color: '#FF4D6D', fontSize: 13, fontWeight: '600' }}>Quitar fecha límite</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </Modal>
+    );
   }
 
   async function handlePublicar() {
@@ -67,6 +173,7 @@ export default function PublicarVendedor() {
         categoria,
         stock: Number(stock),
         imagenUri: imagenUri ?? undefined,
+        fechaLimiteEntrega: fechaLimite,
       });
       Alert.alert('¡Listo!', 'Tu producto fue publicado correctamente', [
         { text: 'OK', onPress: resetForm },
@@ -84,7 +191,7 @@ export default function PublicarVendedor() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
@@ -151,7 +258,7 @@ export default function PublicarVendedor() {
               value={nombre}
               onChangeText={setNombre}
               placeholder="Ej. Calculadora científica"
-              placeholderTextColor={t.border}
+              placeholderTextColor={t.textMuted}
               maxLength={80}
               style={{
                 backgroundColor: t.surface,
@@ -175,7 +282,7 @@ export default function PublicarVendedor() {
               value={descripcion}
               onChangeText={setDescripcion}
               placeholder="Describe tu producto, estado, incluye detalles..."
-              placeholderTextColor={t.border}
+              placeholderTextColor={t.textMuted}
               multiline
               numberOfLines={3}
               maxLength={300}
@@ -204,7 +311,7 @@ export default function PublicarVendedor() {
                 value={precio}
                 onChangeText={setPrecio}
                 placeholder="0.00"
-                placeholderTextColor={t.border}
+                placeholderTextColor={t.textMuted}
                 keyboardType="decimal-pad"
                 style={{
                   backgroundColor: t.surface,
@@ -213,7 +320,7 @@ export default function PublicarVendedor() {
                   borderColor: t.border,
                   paddingHorizontal: 16,
                   paddingVertical: 14,
-                  color: '#059669',
+                  color: isDark ? '#059669' : t.text,
                   fontSize: 20,
                   fontWeight: '800',
                 }}
@@ -227,7 +334,7 @@ export default function PublicarVendedor() {
                 value={stock}
                 onChangeText={setStock}
                 placeholder="1"
-                placeholderTextColor={t.border}
+                placeholderTextColor={t.textMuted}
                 keyboardType="number-pad"
                 style={{
                   backgroundColor: t.surface,
@@ -274,6 +381,34 @@ export default function PublicarVendedor() {
               ))}
             </View>
           </View>
+
+          {/* Fecha límite de entrega */}
+          <View>
+            <Text style={{ color: t.textMuted, fontSize: 11, fontWeight: '600', letterSpacing: 1, marginBottom: 8 }}>
+              FECHA LÍMITE DE ENTREGA
+            </Text>
+            <TouchableOpacity
+              onPress={() => setMostrarCalendario(true)}
+              activeOpacity={0.8}
+              style={{
+                flexDirection: 'row', alignItems: 'center', gap: 10,
+                backgroundColor: t.surface, borderRadius: 14,
+                borderWidth: 1, borderColor: fechaLimite ? 'rgba(5,150,105,0.45)' : t.border,
+                paddingHorizontal: 16, paddingVertical: 14,
+              }}
+            >
+              <Ionicons name="calendar-outline" size={18} color={fechaLimite ? '#059669' : t.textMuted} />
+              <Text style={{ flex: 1, color: fechaLimite ? t.text : t.textMuted, fontSize: 15 }}>
+                {fechaLimite ? formatFechaLimite(fechaLimite) : 'Sin fecha límite (opcional)'}
+              </Text>
+              {fechaLimite
+                ? <Ionicons name="close-circle" size={18} color={t.textMuted} onPress={() => setFechaLimite(null)} />
+                : <Ionicons name="chevron-forward" size={16} color={t.textMuted} />
+              }
+            </TouchableOpacity>
+          </View>
+
+          {renderCalendario()}
 
           {/* Botón publicar */}
           <TouchableOpacity onPress={handlePublicar} disabled={cargando} activeOpacity={0.85} style={{ marginTop: 4 }}>

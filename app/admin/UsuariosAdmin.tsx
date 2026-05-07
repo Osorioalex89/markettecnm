@@ -10,7 +10,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fetchTodosUsuarios, cambiarRolUsuario } from '../../services/adminService';
+import { fetchTodosUsuarios, cambiarRolUsuario, eliminarCuenta } from '../../services/adminService';
 import { useTheme } from '../../hooks/useTheme';
 import type { Perfil } from '../../types';
 
@@ -25,6 +25,7 @@ export default function UsuariosAdmin() {
   const [usuarios, setUsuarios] = useState<Perfil[]>([]);
   const [cargando, setCargando] = useState(true);
   const [cambiando, setCambiando] = useState<string | null>(null);
+  const [eliminando, setEliminando] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
     try {
@@ -67,10 +68,36 @@ export default function UsuariosAdmin() {
     );
   };
 
+  const onEliminarCuenta = (usuario: Perfil) => {
+    Alert.alert(
+      'Eliminar cuenta',
+      `¿Eliminar la cuenta de ${usuario.nombre}? Esta acción es permanente y no se puede deshacer. Se enviará una notificación al usuario.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            setEliminando(usuario.id);
+            try {
+              await eliminarCuenta(usuario.id);
+              setUsuarios((prev) => prev.filter((u) => u.id !== usuario.id));
+            } catch {
+              Alert.alert('Error', 'No se pudo eliminar la cuenta. Intenta de nuevo.');
+            } finally {
+              setEliminando(null);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const renderItem = ({ item }: { item: Perfil }) => {
     const rol = item.rol in ROL_CONFIG ? (item.rol as keyof typeof ROL_CONFIG) : 'comprador';
     const config = ROL_CONFIG[rol];
     const esCambiando = cambiando === item.id;
+    const esEliminando = eliminando === item.id;
 
     return (
       <View
@@ -116,24 +143,43 @@ export default function UsuariosAdmin() {
           </View>
 
           <View style={{ alignItems: 'flex-end', gap: 8 }}>
-            <View
-              style={{
-                backgroundColor: config.bg,
-                borderRadius: 10,
-                borderWidth: 1,
-                borderColor: config.border,
-                paddingHorizontal: 8,
-                paddingVertical: 3,
-              }}
-            >
-              <Text style={{ color: config.color, fontSize: 10, fontWeight: '700' }}>
-                {config.label}
-              </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <View
+                style={{
+                  backgroundColor: config.bg,
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: config.border,
+                  paddingHorizontal: 8,
+                  paddingVertical: 3,
+                }}
+              >
+                <Text style={{ color: config.color, fontSize: 10, fontWeight: '700' }}>
+                  {config.label}
+                </Text>
+              </View>
+
+              <TouchableOpacity
+                onPress={() => onEliminarCuenta(item)}
+                disabled={!!eliminando || !!cambiando}
+                activeOpacity={0.7}
+                style={{
+                  width: 28, height: 28, borderRadius: 8,
+                  backgroundColor: 'rgba(255,77,109,0.1)',
+                  borderWidth: 1, borderColor: 'rgba(255,77,109,0.25)',
+                  alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                {esEliminando
+                  ? <ActivityIndicator size={10} color="#FF4D6D" />
+                  : <Ionicons name="trash-outline" size={13} color="#FF4D6D" />
+                }
+              </TouchableOpacity>
             </View>
 
             <TouchableOpacity
               onPress={() => onCambiarRol(item)}
-              disabled={esCambiando}
+              disabled={esCambiando || !!eliminando}
               activeOpacity={0.7}
               style={{
                 flexDirection: 'row',

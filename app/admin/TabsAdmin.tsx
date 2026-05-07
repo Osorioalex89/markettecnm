@@ -1,4 +1,5 @@
-﻿import { View, Text, TouchableOpacity, ScrollView, Switch } from 'react-native';
+﻿import { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -6,9 +7,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { useTheme } from '../../hooks/useTheme';
+import { contarPendientes } from '../../services/reportesService';
 import HomeAdmin from './HomeAdmin';
 import UsuariosAdmin from './UsuariosAdmin';
 import ProductosAdmin from './ProductosAdmin';
+import ReportesAdmin from './ReportesAdmin';
+import ReseñasAdmin from './ReseñasAdmin';
 
 const Tab = createBottomTabNavigator();
 
@@ -23,6 +27,8 @@ const TABS: TabConfig[] = [
   { name: 'Panel',     label: 'Panel',     icon: 'grid-outline',    iconActive: 'grid' },
   { name: 'Usuarios',  label: 'Usuarios',  icon: 'people-outline',  iconActive: 'people' },
   { name: 'Productos', label: 'Productos', icon: 'cube-outline',    iconActive: 'cube' },
+  { name: 'Reportes',  label: 'Reportes',  icon: 'flag-outline',    iconActive: 'flag' },
+  { name: 'Reseñas',   label: 'Reseñas',   icon: 'star-outline',    iconActive: 'star' },
   { name: 'Perfil',    label: 'Perfil',    icon: 'person-outline',  iconActive: 'person' },
 ];
 
@@ -106,6 +112,13 @@ function PerfilAdmin() {
 export default function TabsAdmin() {
   const isDark = useThemeStore((s) => s.isDark);
   const insets = useSafeAreaInsets();
+  const [reportesPendientes, setReportesPendientes] = useState(0);
+
+  useEffect(() => {
+    contarPendientes().then(setReportesPendientes);
+    const intervalo = setInterval(() => contarPendientes().then(setReportesPendientes), 30000);
+    return () => clearInterval(intervalo);
+  }, []);
 
   return (
     <Tab.Navigator
@@ -134,6 +147,7 @@ export default function TabsAdmin() {
         tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2 },
         tabBarIcon: ({ focused, color }) => {
           const tab = TABS.find((t) => t.name === route.name)!;
+          const mostrarBadge = tab.name === 'Reportes' && reportesPendientes > 0;
           return (
             <View style={{
               width: 46,
@@ -146,6 +160,19 @@ export default function TabsAdmin() {
                 : 'transparent',
             }}>
               <Ionicons name={focused ? tab.iconActive : tab.icon} size={22} color={color} />
+              {mostrarBadge && (
+                <View style={{
+                  position: 'absolute', top: 0, right: 2,
+                  minWidth: 16, height: 16, borderRadius: 8,
+                  backgroundColor: '#FF4D6D',
+                  alignItems: 'center', justifyContent: 'center',
+                  paddingHorizontal: 3,
+                }}>
+                  <Text style={{ color: '#fff', fontSize: 9, fontWeight: '700' }}>
+                    {reportesPendientes > 99 ? '99+' : reportesPendientes}
+                  </Text>
+                </View>
+              )}
             </View>
           );
         },
@@ -157,6 +184,8 @@ export default function TabsAdmin() {
             tab.name === 'Panel'     ? <HomeAdmin /> :
             tab.name === 'Usuarios'  ? <UsuariosAdmin /> :
             tab.name === 'Productos' ? <ProductosAdmin /> :
+            tab.name === 'Reportes'  ? <ReportesAdmin /> :
+            tab.name === 'Reseñas'   ? <ReseñasAdmin /> :
             <PerfilAdmin />
           }
         </Tab.Screen>

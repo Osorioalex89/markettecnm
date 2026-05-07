@@ -9,6 +9,7 @@ export async function publicarProducto(params: {
   categoria: string;
   stock: number;
   imagenUri?: string;
+  fechaLimiteEntrega?: string | null;
 }): Promise<Producto> {
   const { data: producto, error } = await supabase
     .from('productos')
@@ -20,6 +21,7 @@ export async function publicarProducto(params: {
       categoria: params.categoria,
       stock: params.stock,
       activo: true,
+      fecha_limite_entrega: params.fechaLimiteEntrega ?? null,
     })
     .select()
     .single();
@@ -116,6 +118,7 @@ export async function editarProducto(params: {
   categoria: string;
   stock: number;
   imagenUri?: string;
+  fechaLimiteEntrega?: string | null;
 }): Promise<void> {
   const { error } = await supabase
     .from('productos')
@@ -125,6 +128,7 @@ export async function editarProducto(params: {
       precio: params.precio,
       categoria: params.categoria,
       stock: params.stock,
+      fecha_limite_entrega: params.fechaLimiteEntrega ?? null,
     })
     .eq('id', params.id);
   if (error) throw error;

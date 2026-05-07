@@ -80,3 +80,10 @@ export async function eliminarProducto(productoId: string): Promise<void> {
     .eq('id', productoId);
   if (error) throw error;
 }
+
+export async function eliminarCuenta(userId: string): Promise<void> {
+  const { error } = await supabase.functions.invoke('eliminar-cuenta', {
+    body: { userId },
+  });
+  if (error) throw error;
+}

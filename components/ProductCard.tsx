@@ -30,6 +30,25 @@ function formatPrecio(precio: number): string {
   return `$${precio.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 }
 
+const MESES_CORTOS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+function useFechaLimiteBadge(iso: string | null | undefined): { label: string; color: string; bg: string } | null {
+  if (!iso) return null;
+  const [y, m, d] = iso.split('-').map(Number);
+  const limite = new Date(y, m - 1, d);
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const diasRestantes = Math.round((limite.getTime() - hoy.getTime()) / 86400000);
+  if (diasRestantes < 0) return null;
+  const label = diasRestantes === 0 ? 'Hoy' : diasRestantes === 1 ? 'Mañana' : `${d} ${MESES_CORTOS[m - 1]}`;
+  const urgente = diasRestantes <= 1;
+  const proximo = diasRestantes <= 7;
+  return {
+    label,
+    color: urgente ? '#FF4D6D' : proximo ? '#F59E0B' : '#6B7280',
+    bg:    urgente ? 'rgba(255,77,109,0.12)' : proximo ? 'rgba(245,158,11,0.12)' : 'rgba(107,114,128,0.1)',
+  };
+}
+
 type Props = {
   producto: ProductoConVendedor;
   onPress?: () => void;
@@ -51,6 +70,7 @@ export default function ProductCard({
   const icon   = CATEGORIA_ICON[producto.categoria ?? ''] ?? 'pricetag-outline';
   const colors = CATEGORIA_COLORS[producto.categoria ?? ''] ?? ['#34D399', '#10B981'];
   const sinStock = (producto.stock ?? 0) <= 0;
+  const fechaBadge = useFechaLimiteBadge((producto as any).fecha_limite_entrega);
 
   // --- Animación carrito ---
   const [agregado, setAgregado] = useState(false);
@@ -242,6 +262,21 @@ export default function ProductCard({
             <StarRating value={rating.promedio} size={10} />
             <Text style={{ color: t.textMuted, fontSize: 9 }}>
               {rating.promedio.toFixed(1)} ({rating.total})
+            </Text>
+          </View>
+        )}
+
+        {/* Badge fecha límite */}
+        {fechaBadge && (
+          <View style={{
+            flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 5,
+            alignSelf: 'flex-start',
+            backgroundColor: fechaBadge.bg, borderRadius: 20,
+            paddingHorizontal: 7, paddingVertical: 3,
+          }}>
+            <Ionicons name="time-outline" size={10} color={fechaBadge.color} />
+            <Text style={{ color: fechaBadge.color, fontSize: 9, fontWeight: '700' }}>
+              Límite: {fechaBadge.label}
             </Text>
           </View>
         )}
